@@ -6,6 +6,7 @@ package collectors
 import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/bridge"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/coverage"
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/datapath"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
 )
 
@@ -13,6 +14,7 @@ import (
 var collectors = []lib.Collector{
 	new(bridge.Collector),
 	new(coverage.Collector),
+	new(datapath.Collector),
 }
 
 func Collectors() []lib.Collector {
