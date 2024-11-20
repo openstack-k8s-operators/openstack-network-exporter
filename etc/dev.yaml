@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Robin Jarry
+
+---
+http-listen: :1981
+http-path: /metrics
+tls-cert: cert.pem
+tls-key: key.pem
+auth-users:
+  - name: admin
+    password: admin
+log-level: debug
+ovs-rundir: /usr/local/var/run/openvswitch

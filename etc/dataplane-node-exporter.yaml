@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Robin Jarry
+#
+# This is the configuration file for OpenStack dataplane-node-exporter. It is
+# written in the YAML format. The exporter will lookup the configuration file
+# at /etc/dataplane-node-exporter.yaml by default. The path can be changed via
+# the DATAPLANE_NODE_EXPORTER_YAML environment variable.
+#
+# All settings have default values and some of them can be overriden via
+# environment variables as indicated in their description.
+
+---
+# Local addess and port to listen to for scraping HTTP requests. Can be
+# "127.0.0.1:<port>" or "[::1]:<port>" to limit to localhost. If address is
+# omited, listen on all addresses.
+#
+# Env: DATAPLANE_NODE_EXPORTER_HTTP_LISTEN
+# Default: ":1981"
+#
+#http-listen: ":1981"
+
+# The HTTP path where to serve responses to prometheus scrapers.
+#
+# Env: DATAPLANE_NODE_EXPORTER_HTTP_PATH
+# Default: /metrics
+#
+#http-path: /metrics
+
+# The path to a TLS certificate to enable HTTPS support.
+#
+# Env: DATAPLANE_NODE_EXPORTER_TLS_CERT
+# Default: ""
+#
+#tls-cert:
+
+# The path to a TLS certificate secret key to enable HTTPS support.
+#
+# Env: DATAPLANE_NODE_EXPORTER_TLS_KEY
+# Default: ""
+#
+#tls-key:
+
+# Space separated list of valid users and passwords. Leave empty to disable
+# authentication. Authentication will only be enforced when TLS is enabled.
+#
+# Example:
+#
+#   auth-users:
+#     - name: admin
+#       password: admin
+#     - name: foobar
+#       password: s3cr3t
+#     - name: johndoe
+#       password: p4ssw0rd
+#
+# Default: []
+#
+#auth-users: []
+
+# Overall log verbosity of the exporter.
+#
+# Supported levels are: debug info notice warning error critical
+#
+# Env: DATAPLANE_NODE_EXPORTER_LOG_LEVEL
+# Default: notice
+#
+#log-level: notice
+
+# The absolute path to the runtime directory of openvswitch. This folder is
+# expected to contain the ovsdb-server socket endpoint "db.sock", the
+# "ovs-vswitchd.pid" file and each bridge openflow management sockets
+# "$bridge_name.mgmt".
+#
+# Env: DATAPLANE_NODE_EXPORTER_OVS_RUNDIR
+# Default: /run/openvswitch
+#
+#ovs-rundir: /run/openvswitch
+
+# List of metric collectors to scrape and export. To list the available
+# collectors and the metrics they export, use "dataplane-node-exporter -l". If
+# the list is empty (default) all collectors will be enabled.
+#
+# Default: []
+#
+#collectors: []
+
+# List of metric sets to export. This is cumulative with the collectors option.
+# The "dataplane-node-exporter -l" flag will list all supported metrics along
+# with their set name. If the list is empty (default) all metrics from enabled
+# collectors will be exported.
+#
+# Supported sets are: base errors perf counters debug
+#
+# Default: [base, errors, perf, counters]
+#
+#metric-sets:
+#  - base
+#  - errors
+#  - perf
+#  - counters
