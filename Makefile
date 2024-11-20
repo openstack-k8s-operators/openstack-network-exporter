@@ -45,7 +45,7 @@ cert.pem key.pem:
 		-subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
 
 .PHONY: run
-run: dataplane-node-exporter
+run: dataplane-node-exporter cert.pem key.pem
 	DATAPLANE_NODE_EXPORTER_YAML=etc/dev.yaml ./$<
 
 .PHONY: container
