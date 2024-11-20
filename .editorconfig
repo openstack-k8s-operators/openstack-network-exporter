@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Robin Jarry
+# See https://editorconfig.org/ for syntax reference.
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+
+[*.go]
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+tab_width = 8
+max_line_length = 100
