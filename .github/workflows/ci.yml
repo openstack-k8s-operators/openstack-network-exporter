@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Robin Jarry
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make lint
+
+  git-commits:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.base.sha && github.event.pull_request.head.sha }}
+    env:
+      REVISION_RANGE: "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # force fetch all history
+      - run: git config --global --add safe.directory $PWD
+      - run: make check-commits
