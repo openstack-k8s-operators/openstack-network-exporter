@@ -11,6 +11,7 @@ import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/memory"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_perf"
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_rxq"
 )
 
 // All supported collectors. Please keep alpha sorted.
@@ -21,6 +22,7 @@ var collectors = []lib.Collector{
 	new(iface.Collector),
 	new(memory.Collector),
 	new(pmd_perf.Collector),
+	new(pmd_rxq.Collector),
 }
 
 func Collectors() []lib.Collector {
