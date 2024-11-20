@@ -5,12 +5,14 @@ package collectors
 
 import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/bridge"
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/coverage"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
 )
 
 // All supported collectors. Please keep alpha sorted.
 var collectors = []lib.Collector{
 	new(bridge.Collector),
+	new(coverage.Collector),
 }
 
 func Collectors() []lib.Collector {
