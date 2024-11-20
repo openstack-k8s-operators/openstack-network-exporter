@@ -4,8 +4,10 @@ This is a prometheus exporter for dataplane (compute, network) nodes running
 with OpenvSwitch. It supports the default linux kernel and userspace DPDK data
 paths.
 
-The Dataplane Node Exporter is distributed under the [Apache License
-2.0](https://spdx.org/licenses/Apache-2.0.html).
+The Dataplane Node Exporter is distributed under the [Apache 2.0][license]
+license.
+
+[license]: https://spdx.org/licenses/Apache-2.0.html
 
 ## Build
 
@@ -26,7 +28,9 @@ The location of the configuration file can be changed via the
 `DATAPLANE_NODE_EXPORTER_YAML` environment variable.
 
 The default configuration file can be found in the git repository:
-[dataplane-node-exporter.yaml](https://github.com/openstack-k8s-operators/dataplane-node-exporter/blob/main/etc/dataplane-node-exporter.yaml).
+[`dataplane-node-exporter.yaml`][conf].
+
+[conf]: https://github.com/openstack-k8s-operators/dataplane-node-exporter/blob/main/etc/dataplane-node-exporter.yaml
 
 ## Running
 
@@ -93,9 +97,7 @@ Patch the code. Ensure that your code is properly formatted with `make format`.
 Ensure that everything builds and works as expected. Ensure that you did not
 break anything.
 
-- If applicable, update unit/smoke tests.
-- If adding a new feature, please consider adding new tests.
-- Do not forget to update the docs, if applicable.
+- Do not forget to update the configuration files, if applicable.
 - Run the linters using `make lint`.
 
 Once you are happy with your work, you can create a commit (or several
@@ -121,8 +123,7 @@ commits). Follow these general rules:
 - When in doubt, follow the format and layout of the recent existing commits.
 - The following trailers are accepted in commits. If you are using multiple
   trailers in a commit, it's preferred to also order them according to this
-  list. Note, that the `commit-msg` hook (see below for installing) will
-  automatically sort them for you when committing.
+  list.
 
   * `Closes: <URL>` closes the referenced issue.
   * `Fixes: <sha> ("<title>")` reference the commit that introduced a regression.
@@ -137,16 +138,19 @@ commits). Follow these general rules:
   * `Reviewed-by:`
   * `Acked-by:`
 
-There is a great reference for commit messages in the
-[Linux kernel documentation](https://www.kernel.org/doc/html/latest/process/submitting-patches.html#describe-your-changes).
+There is a great reference for commit messages in the [Linux kernel
+documentation][linux-commits].
+
+[linux-commits]: https://www.kernel.org/doc/html/latest/process/submitting-patches.html#describe-your-changes
 
 IMPORTANT: you must sign-off your work using `git commit --signoff`. Follow the
-[Linux kernel developer's certificate of origin][linux-signoff] for more
-details. All contributions are made under the [Apache License
-2.0][https://spdx.org/licenses/Apache-2.0.html] license. Please use your real
-name and not a pseudonym. Here is an example:
+[Linux kernel developer's certificate of origin][signoff] for more details. All
+contributions are made under the [Apache 2.0][license] license. Please use your
+real name and not a pseudonym. Here is an example:
 
     Signed-off-by: Robin Jarry <rjarry@redhat.com>
+
+[signoff]: https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin
 
 Once you are happy with your commits, you can verify that they are correct with
 the following command:
