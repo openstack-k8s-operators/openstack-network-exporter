@@ -1,0 +1,5 @@
+/dataplane-node-exporter*
+/cert.pem
+/key.pem
+/ovsdb/ovs/*.go
+!/ovsdb/ovs/gen.go
