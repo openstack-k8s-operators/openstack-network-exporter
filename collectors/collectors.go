@@ -3,10 +3,15 @@
 
 package collectors
 
-import "github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
+import (
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/bridge"
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
+)
 
 // All supported collectors. Please keep alpha sorted.
-var collectors = []lib.Collector{}
+var collectors = []lib.Collector{
+	new(bridge.Collector),
+}
 
 func Collectors() []lib.Collector {
 	return collectors
