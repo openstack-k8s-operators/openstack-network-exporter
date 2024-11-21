@@ -18,21 +18,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var (
-	help = flag.Bool("h", false, "Display help and exit")
-	list = flag.Bool("l", false, "List all supported metrics and exit")
-)
+var format = flag.String("l", "",
+	"List all supported metrics in the specified format and exit.\n"+
+		"Supported formats are: text, json, csv, tsv, markdown.")
 
 func main() {
 	flag.Parse()
-	switch {
-	case *help:
-		flag.Usage()
-		os.Exit(0)
-	case *list:
-		for _, c := range collectors.Collectors() {
-			lib.PrintMetrics(c)
-		}
+	if *format != "" {
+		lib.PrintMetrics(collectors.Collectors(), *format)
 		os.Exit(0)
 	}
 	if err := config.Parse(); err != nil {
