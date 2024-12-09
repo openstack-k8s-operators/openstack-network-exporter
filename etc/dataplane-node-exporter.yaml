@@ -66,6 +66,15 @@
 #
 #log-level: notice
 
+# The absolute path to the runtime directory of ovn-controller. This folder is
+# expected to contain the the ovn-controller pid file "ovn-controller.pid" and
+# its unixctl socket "ovn-controller.$pid.ctl".
+#
+# Env: DATAPLANE_NODE_EXPORTER_OVN_RUNDIR
+# Default: /run/ovn
+#
+#ovn-rundir: /run/ovn
+
 # The absolute path to the runtime directory of openvswitch. This folder is
 # expected to contain the ovsdb-server socket endpoint "db.sock", the
 # "ovs-vswitchd.pid" file and each bridge openflow management sockets

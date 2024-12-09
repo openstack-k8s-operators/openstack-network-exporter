@@ -17,10 +17,27 @@ import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
 )
 
-func Call(method string, args ...string) string {
+type appctlDaemon string
+
+const (
+	ovsVswitchd   appctlDaemon = "ovs-vswitchd"
+	ovnController appctlDaemon = "ovn-controller"
+)
+
+func call(daemon appctlDaemon, method string, args ...string) string {
+	var rundir string
 	var err error
 
-	pidfile := filepath.Join(config.OvsRundir(), "ovs-vswitchd.pid")
+	switch daemon {
+	case ovsVswitchd:
+		rundir = config.OvsRundir()
+	case ovnController:
+		rundir = config.OvnRundir()
+	default:
+		panic(fmt.Errorf("unknown daemon value: %v", daemon))
+	}
+
+	pidfile := filepath.Join(rundir, fmt.Sprintf("%s.pid", daemon))
 
 	var f *os.File
 	if f, err = os.Open(pidfile); err != nil {
@@ -38,7 +55,7 @@ func Call(method string, args ...string) string {
 		log.Errf("strconv.Atoi: %s", err)
 		return ""
 	}
-	sockpath := filepath.Join(config.OvsRundir(), fmt.Sprintf("ovs-vswitchd.%d.ctl", pid))
+	sockpath := filepath.Join(rundir, fmt.Sprintf("%s.%d.ctl", daemon, pid))
 	conn, err := net.Dial("unix", sockpath)
 	if err != nil {
 		log.Errf("net.Dial: %s", err)
@@ -66,4 +83,12 @@ func Call(method string, args ...string) string {
 	}
 
 	return reply
+}
+
+func OvsVSwitchd(method string, args ...string) string {
+	return call(ovsVswitchd, method, args...)
+}
+
+func OvnController(method string, args ...string) string {
+	return call(ovnController, method, args...)
 }

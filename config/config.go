@@ -65,6 +65,7 @@ type conf struct {
 	AuthUsers  []user            `yaml:"auth-users"`
 	users      map[string]string `yaml:"-"`
 	OvsRundir  string            `yaml:"ovs-rundir" env:"DATAPLANE_NODE_EXPORTER_OVS_RUNDIR"`
+	OvnRundir  string            `yaml:"ovn-rundir" env:"DATAPLANE_NODE_EXPORTER_OVN_RUNDIR"`
 	LogLevel   string            `yaml:"log-level" env:"DATAPLANE_NODE_EXPORTER_LOG_LEVEL"`
 	logLevel   syslog.Priority   `yaml:"-"`
 	Collectors []string          `yaml:"collectors"`
@@ -76,6 +77,7 @@ var c = conf{
 	HttpListen: ":1981",
 	HttpPath:   "/metrics",
 	OvsRundir:  "/run/openvswitch",
+	OvnRundir:  "/run/ovn",
 	LogLevel:   "notice",
 	users:      make(map[string]string),
 }
@@ -85,6 +87,7 @@ func HttpPath() string             { return c.HttpPath }
 func TlsCert() string              { return c.TlsCert }
 func TlsKey() string               { return c.TlsKey }
 func OvsRundir() string            { return c.OvsRundir }
+func OvnRundir() string            { return c.OvnRundir }
 func Collectors() []string         { return c.Collectors }
 func LogLevel() syslog.Priority    { return c.logLevel }
 func AuthUsers() map[string]string { return c.users }
