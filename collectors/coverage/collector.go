@@ -56,7 +56,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 var coverageRe = regexp.MustCompile(`^(\w+)\s+.*\s+total: (\d+)$`)
 
 func (Collector) Collect(ch chan<- prometheus.Metric) {
-	buf := appctl.Call("coverage/show")
+	buf := appctl.OvsVSwitchd("coverage/show")
 	if buf == "" {
 		return
 	}

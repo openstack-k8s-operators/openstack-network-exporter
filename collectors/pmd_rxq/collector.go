@@ -47,7 +47,7 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	buf := appctl.Call("dpif-netdev/pmd-rxq-show")
+	buf := appctl.OvsVSwitchd("dpif-netdev/pmd-rxq-show")
 	if buf == "" {
 		return
 	}

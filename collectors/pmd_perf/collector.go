@@ -60,7 +60,7 @@ var (
 )
 
 func (Collector) Collect(ch chan<- prometheus.Metric) {
-	buf := appctl.Call("dpif-netdev/pmd-perf-show")
+	buf := appctl.OvsVSwitchd("dpif-netdev/pmd-perf-show")
 	if buf == "" {
 		return
 	}

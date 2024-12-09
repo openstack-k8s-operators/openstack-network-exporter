@@ -35,7 +35,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 var memoryCountRe = regexp.MustCompile(`(\w+):(\d+)`)
 
 func (Collector) Collect(ch chan<- prometheus.Metric) {
-	buf := appctl.Call("memory/show")
+	buf := appctl.OvsVSwitchd("memory/show")
 	if buf == "" {
 		return
 	}
