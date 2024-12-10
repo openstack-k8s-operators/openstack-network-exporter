@@ -10,6 +10,7 @@ import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/iface"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/memory"
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/ovn"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_perf"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_rxq"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/vswitch"
@@ -22,6 +23,7 @@ var collectors = []lib.Collector{
 	new(datapath.Collector),
 	new(iface.Collector),
 	new(memory.Collector),
+	new(ovn.Collector),
 	new(pmd_perf.Collector),
 	new(pmd_rxq.Collector),
 	new(vswitch.Collector),
