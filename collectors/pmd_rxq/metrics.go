@@ -25,6 +25,22 @@ var overheadMetric = lib.Metric{
 	Set:         config.METRICS_PERF,
 }
 
+var ctxtSwitchesMetric = lib.Metric{
+	Name:        "ovs_pmd_context_switches",
+	Description: "Number of voluntary context switches per PMD thread.",
+	ValueType:   prometheus.CounterValue,
+	Labels:      []string{"numa", "cpu"},
+	Set:         config.METRICS_PERF,
+}
+
+var nonVolCtxtSwitchesMetric = lib.Metric{
+	Name:        "ovs_pmd_nonvol_context_switches",
+	Description: "Number of non-voluntary context switches per PMD thread.",
+	ValueType:   prometheus.CounterValue,
+	Labels:      []string{"numa", "cpu"},
+	Set:         config.METRICS_ERRORS,
+}
+
 var usageMetric = lib.Metric{
 	Name:        "ovs_pmd_rxq_usage",
 	Description: "Percentage of CPU cycles used to process packets from one Rxq.",
