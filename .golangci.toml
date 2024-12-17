@@ -9,9 +9,20 @@ enable = [
 	"errorlint", # check to ensure no problems with wrapped errors
 	"gocritic", # check for bugs, performance, and style issues
 	"gofmt", # check that gofmt is satisfied
+	"govet", # enable explicitly to tune printf checks
 ]
 
 [linters-settings.nolintlint]
 allow-unused = false # don't allow nolint if not required
 require-explanation = true # require an explanation when disabling a linter
 requre-specific = true # linter exceptions must specify the linter
+
+[linters-settings.govet.settings.printf]
+funcs = [
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Debugf",
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Infof",
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Noticef",
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Warnf",
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Errf",
+	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Critf",
+]
