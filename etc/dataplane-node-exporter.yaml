@@ -40,8 +40,8 @@
 #
 #tls-key:
 
-# Space separated list of valid users and passwords. Leave empty to disable
-# authentication. Authentication will only be enforced when TLS is enabled.
+# List of valid users and passwords. Leave empty to disable authentication.
+# Authentication will only be enforced when TLS is enabled.
 #
 # Example:
 #
