@@ -74,7 +74,9 @@ func main() {
 
 	if config.TlsCert() != "" && config.TlsKey() != "" {
 		log.Noticef("listening on https://%s%s", config.HttpListen(), config.HttpPath())
-		server.Handler = basicAuthHandler(mux)
+		if len(config.AuthUsers()) > 0 {
+			server.Handler = basicAuthHandler(mux)
+		}
 		err = server.ListenAndServeTLS(config.TlsCert(), config.TlsKey())
 	} else {
 		log.Noticef("listening on http://%s%s", config.HttpListen(), config.HttpPath())
