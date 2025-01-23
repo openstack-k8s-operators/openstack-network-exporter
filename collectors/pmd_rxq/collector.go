@@ -27,7 +27,7 @@ func (Collector) Name() string {
 }
 
 func (Collector) Metrics() []lib.Metric {
-	return []lib.Metric{isolatedMetric, overheadMetric, enabledMetric, usageMetric}
+	return []lib.Metric{isolatedMetric, overheadMetric, ctxtSwitchesMetric, nonVolCtxtSwitchesMetric, enabledMetric, usageMetric}
 }
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
