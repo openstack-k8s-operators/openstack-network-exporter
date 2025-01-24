@@ -117,10 +117,29 @@ func makeMetric(name, value string) prometheus.Metric {
 	return prometheus.MustNewConstMetric(m.Desc(), m.ValueType, val)
 }
 
+const (
+	packetInDrop           = "packet_in_drop"
+	dropBufferedPacketsMap = "pinctrl_drop_buffered_packets_map"
+	dropControllerEvent    = "pinctrl_drop_controller_event"
+)
+
+func isPacketInDropComponent(name string) bool {
+	if name == dropBufferedPacketsMap || name == dropControllerEvent {
+		return true
+	}
+	return false
+}
+
 // "vconn_sent                 0.0/sec     0.083/sec        0.0767/sec   total: 131870"
 var coverageRe = regexp.MustCompile(`^(\w+)\s+.*\s+total: (\d+)$`)
 
 func collectCoverageMetrics(ch chan<- prometheus.Metric) {
+
+	packetInDropComponets := map[string]string{
+		dropBufferedPacketsMap: "",
+		dropControllerEvent:    "",
+	}
+
 	buf := appctl.OvnController("coverage/show")
 	if buf == "" {
 		return
@@ -132,10 +151,32 @@ func collectCoverageMetrics(ch chan<- prometheus.Metric) {
 
 		match := coverageRe.FindStringSubmatch(line)
 		if match != nil {
-			metric := makeMetric(match[1], match[2])
-			if metric != nil {
-				ch <- metric
+			if isPacketInDropComponent(match[1]) {
+				packetInDropComponets[match[1]] = match[2]
+			} else {
+				metric := makeMetric(match[1], match[2])
+				if metric != nil {
+					ch <- metric
+				}
 			}
+		}
+	}
+
+	total := 0
+	for m, v := range packetInDropComponets {
+		if v != "" {
+			i, e := strconv.Atoi(v)
+			if e != nil {
+				log.Errf("%s: %s: %s", m, v, e)
+				continue
+			}
+			total += i
+		}
+	}
+	if total > 0 {
+		metric := makeMetric(packetInDrop, strconv.Itoa(total))
+		if metric != nil {
+			ch <- metric
 		}
 	}
 }
