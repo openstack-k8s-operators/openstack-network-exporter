@@ -159,6 +159,42 @@ var ovnController = map[string]lib.Metric{
 		ValueType:   prometheus.CounterValue,
 		Set:         config.METRICS_ERRORS,
 	},
+	"pinctrl_total_pin_pkts": {
+		Name:        "ovnc_pinctrl_total_pin_pkts",
+		Description: "Specifies the number of times ovn-controller has handled the packet-ins from ovs-vswitchd",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_DEBUG,
+	},
+	"netlink_sent": {
+		Name:        "ovnc_netlink_sent",
+		Description: "Number of netlink message sent to the kernel",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_DEBUG,
+	},
+	"netlink_received": {
+		Name:        "ovnc_netlink_received",
+		Description: "Number of netlink messages received by the kernel",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_DEBUG,
+	},
+	"netlink_recv_jumbo": {
+		Name:        "ovnc_netlink_recv_jumbo",
+		Description: "Number of netlink messages that were received from the kernel were more than the allocated buffer",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_ERRORS,
+	},
+	"netlink_overflow": {
+		Name:        "ovnc_netlink_overflow",
+		Description: "Netlink messages dropped by the daemon due to buffer overflow",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_ERRORS,
+	},
+	packetInDrop: {
+		Name:        "ovnc_" + packetInDrop,
+		Description: "Specifies the number of times the ovn-controller has dropped the packet-ins from ovs-vswitchd due to resource constraints",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_ERRORS,
+	},
 }
 
 var metrics = []*map[string]lib.Metric{
