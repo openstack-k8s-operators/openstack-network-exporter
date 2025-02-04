@@ -191,7 +191,7 @@ func getVswitchdPmdStat() map[uint64]pmdstat {
 		log.Errf("read(%s): %s", pidfile, err)
 		return nil
 	}
-	tasks := filepath.Join("/proc", strings.TrimSpace(string(buf)), "task")
+	tasks := filepath.Join(config.OvsProcdir(), strings.TrimSpace(string(buf)), "task")
 	entries, err := os.ReadDir(tasks)
 	if err != nil {
 		log.Errf("readdir(%s): %s", tasks, err)

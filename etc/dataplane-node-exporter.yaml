@@ -85,6 +85,15 @@
 #
 #ovs-rundir: /run/openvswitch
 
+# The mount path of the procfs directory to search for the PID found in
+# ovs-vswitchd.pid. When running the exporter in a different PID namespace than
+# OVS, this will need to be changed to another folder.
+#
+# Env: DATAPLANE_NODE_EXPORTER_OVS_PROCDIR
+# Default: /proc
+#
+#ovs-procdir: /proc
+
 # List of metric collectors to scrape and export. To list the available
 # collectors and the metrics they export, use "dataplane-node-exporter -l". If
 # the list is empty (default) all collectors will be enabled.
