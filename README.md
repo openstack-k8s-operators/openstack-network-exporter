@@ -42,6 +42,9 @@ socket path is resolved using the PID file of `ovs-vswitchd` at
 `/run/openvswitch/ovs-vswitchd.pid` =>
 `/run/openvswitch/ovs-vswitchd.$PID.ctl`.
 
+Some collectors will need access to the `/proc/$PID` directory of
+`ovs-vswitchd`.
+
 The collector for OVN will need access to the `ovn-controller` unixctl socket. This
 socket path is resolved using the PID file of `ovn-controller` at
 `/run/ovn/ovn-controller.pid` => `/run/ovn/ovn-controller.$PID.ctl`.
