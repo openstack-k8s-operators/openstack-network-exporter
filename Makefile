@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Robin Jarry
 
-version = $(shell git describe --long --abbrev=12 --tags --dirty 2>/dev/null || echo 0.1)
+version = $(shell git describe --long --abbrev=12 --tags --dirty 2>/dev/null || echo v0.0.1)
 src = $(shell find * -type f -name '*.go') go.mod go.sum
+
+# Image URL to use all building/pushing image targets
+DEFAULT_IMG ?= quay.io/openstack-k8s-operators/dataplane-node-exporter:$(version)
+# Development: quay.io/user/dataplane-node-exporter:latest
+IMG ?= $(DEFAULT_IMG)
 
 .PHONY: all
 all: dataplane-node-exporter
@@ -50,4 +55,8 @@ run: dataplane-node-exporter cert.pem key.pem
 
 .PHONY: container
 container:
-	podman build -t 'quay.io/openstack/dataplane-node-exporter:$(version)' .
+	podman build -t ${IMG} .
+
+.PHONY: push
+push:
+	podman push ${IMG}
