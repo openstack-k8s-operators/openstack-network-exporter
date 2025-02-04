@@ -59,7 +59,7 @@ var metrics = map[string]lib.Metric{
 		Description: "Number of packets received",
 		ValueType:   prometheus.CounterValue,
 		Labels:      commonLabels,
-		Set:         config.METRICS_DEBUG,
+		Set:         config.METRICS_PERF,
 	},
 	//  Datapath passes:    1553492231479  (1.00 passes/pkt)
 	"Datapath passes": {
@@ -140,7 +140,7 @@ var metrics = map[string]lib.Metric{
 		Description: "Number of Tx packets",
 		ValueType:   prometheus.CounterValue,
 		Labels:      commonLabels,
-		Set:         config.METRICS_DEBUG,
+		Set:         config.METRICS_PERF,
 	},
 	//  Tx batches:          50017523886  (31.06 pkts/batch)
 	"Tx batches": {
@@ -148,6 +148,6 @@ var metrics = map[string]lib.Metric{
 		Description: "Number of Tx batches",
 		ValueType:   prometheus.GaugeValue,
 		Labels:      commonLabels,
-		Set:         config.METRICS_DEBUG,
+		Set:         config.METRICS_PERF,
 	},
 }
