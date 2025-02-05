@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Robin Jarry
 
-version = $(shell git describe --long --abbrev=12 --tags --dirty 2>/dev/null || echo v0.0.1)
+version = $(shell git describe --long --abbrev=12 --tags --dirty 2>/dev/null || echo v0.0.2)
 src = $(shell find * -type f -name '*.go') go.mod go.sum
 
 # Image URL to use all building/pushing image targets
