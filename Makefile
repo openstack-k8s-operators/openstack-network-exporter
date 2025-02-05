@@ -60,3 +60,14 @@ container:
 .PHONY: push
 push:
 	podman push ${IMG}
+
+.PHONY: tag-release
+tag-release:
+	@cur_version=`sed -En 's/.* \|\| echo v([0-9\.]+)\>.*$$/\1/p' Makefile` && \
+	next_version=`echo $$cur_version | awk -F. -v OFS=. '{$$(NF) += 1; print}'` && \
+	read -rp "next version ($$next_version)? " n && \
+	if [ -n "$$n" ]; then next_version="$$n"; fi && \
+	set -xe && \
+	sed -i "s/\<v$$cur_version\>/v$$next_version/" Makefile && \
+	git commit -sm "dataplane-node-exporter: release v$$next_version" -m "`git shortlog -sn v$$cur_version..`" Makefile && \
+	git tag -sm "v$$next_version" "v$$next_version"
