@@ -80,6 +80,10 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 		if !ok {
 			continue
 		}
+		if i.Type == "" {
+			// empty string is a synonym for "system"
+			i.Type = "system"
+		}
 		labels := []string{bridge, port, i.Name, i.Type}
 
 		for _, m := range metrics {
