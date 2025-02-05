@@ -145,7 +145,7 @@ var metrics = []Metric{
 			Set:         config.METRICS_ERRORS,
 		},
 		func(iface *ovs.Interface) float64 {
-			if x, ok := iface.Statistics["rx_missed_errors"]; ok {
+			if x := iface.Statistics["rx_missed_errors"]; x > 0 {
 				return float64(x)
 			}
 			return float64(iface.Statistics["rx_dropped"])
@@ -184,10 +184,10 @@ var metrics = []Metric{
 			Set:         config.METRICS_ERRORS,
 		},
 		func(iface *ovs.Interface) float64 {
-			if x, ok := iface.Statistics["tx_errors"]; ok {
+			if x := iface.Statistics["ovs_tx_failure_drops"]; x > 0 {
 				return float64(x)
 			}
-			return float64(iface.Statistics["ovs_tx_failure_drops"])
+			return float64(iface.Statistics["tx_errors"])
 		},
 	},
 	{
