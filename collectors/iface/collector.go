@@ -5,6 +5,7 @@ package iface
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
@@ -88,8 +89,19 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 
 		for _, m := range metrics {
 			if config.MetricSets().Has(m.Set) {
-				ch <- prometheus.MustNewConstMetric(m.Desc(),
-					m.ValueType, m.GetValue(&i), labels...)
+				if m.GetValueLabel != nil {
+					for index := 0; ; index++ {
+						if value, ok := m.GetValueLabel(&i, index); ok {
+							ch <- prometheus.MustNewConstMetric(m.Desc(),
+								m.ValueType, value, append(labels, strconv.Itoa(index))...)
+						} else {
+							break
+						}
+					}
+				} else {
+					ch <- prometheus.MustNewConstMetric(m.Desc(),
+						m.ValueType, m.GetValue(&i), labels...)
+				}
 			}
 		}
 	}

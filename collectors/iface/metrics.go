@@ -1,6 +1,8 @@
 package iface
 
 import (
+	"fmt"
+
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/ovsdb/ovs"
@@ -9,7 +11,8 @@ import (
 
 type Metric struct {
 	lib.Metric
-	GetValue func(iface *ovs.Interface) float64
+	GetValue      func(iface *ovs.Interface) float64
+	GetValueLabel func(iface *ovs.Interface, index int) (float64, bool)
 }
 
 var commonLabels = []string{"bridge", "port", "interface", "type"}
@@ -34,6 +37,7 @@ var metrics = []Metric{
 			}
 			return -1
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -54,6 +58,7 @@ var metrics = []Metric{
 			}
 			return -1
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -69,6 +74,7 @@ var metrics = []Metric{
 			}
 			return 0
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -84,6 +90,7 @@ var metrics = []Metric{
 			}
 			return 0
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -99,6 +106,7 @@ var metrics = []Metric{
 			}
 			return 0
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -111,6 +119,7 @@ var metrics = []Metric{
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["rx_packets"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -123,6 +132,7 @@ var metrics = []Metric{
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["rx_bytes"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -135,6 +145,7 @@ var metrics = []Metric{
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["rx_errors"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -150,6 +161,7 @@ var metrics = []Metric{
 			}
 			return float64(iface.Statistics["rx_dropped"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -162,6 +174,7 @@ var metrics = []Metric{
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["tx_packets"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -174,6 +187,7 @@ var metrics = []Metric{
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["tx_bytes"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -189,6 +203,7 @@ var metrics = []Metric{
 			}
 			return float64(iface.Statistics["tx_errors"])
 		},
+		nil,
 	},
 	{
 		lib.Metric{
@@ -200,6 +215,109 @@ var metrics = []Metric{
 		},
 		func(iface *ovs.Interface) float64 {
 			return float64(iface.Statistics["ovs_tx_retries"])
+		},
+		nil,
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_rx_guest_notifications",
+			Description: "Number of times a guest was notifified of a received pkt on this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("rx_q%d_guest_notifications", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
+		},
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_tx_guest_notifications",
+			Description: "Number of times a guest was notifified of a transmitted pkt on this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("tx_q%d_guest_notifications", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
+		},
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_rx_good_packets",
+			Description: "Number of received packets that were delivered to the guest for this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("rx_q%d_good_packets", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
+		},
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_tx_good_packets",
+			Description: "Number of transmitted packets that were received from the guest for this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("tx_q%d_good_packets", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
+		},
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_rx_multicast_packets",
+			Description: "Number of recieved multicast packets for this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("rx_q%d_multicast_packets", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
+		},
+	},
+	{
+		lib.Metric{
+			Name:        "ovs_interface_tx_multicast_packets",
+			Description: "Number of transmitted multicast packets for this queue.",
+			Labels:      append(commonLabels, "queue"),
+			ValueType:   prometheus.CounterValue,
+			Set:         config.METRICS_PERF,
+		},
+		nil,
+		func(iface *ovs.Interface, index int) (float64, bool) {
+			metric := fmt.Sprintf("tx_q%d_multicast_packets", index)
+			if x, ok := iface.Statistics[metric]; ok {
+				return float64(x), true
+			}
+			return 0, false
 		},
 	},
 }
