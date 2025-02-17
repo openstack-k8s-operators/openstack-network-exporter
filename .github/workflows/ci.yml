@@ -37,3 +37,18 @@ jobs:
           fetch-depth: 0 # force fetch all history
       - run: git config --global --add safe.directory $PWD
       - run: make check-commits
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make shellcheck
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          path: logs
+          retention-days: 3
