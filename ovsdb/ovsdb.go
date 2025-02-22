@@ -5,6 +5,7 @@ package ovsdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
 	"github.com/openstack-k8s-operators/dataplane-node-exporter/ovsdb/ovs"
 	"github.com/ovn-org/libovsdb/client"
+	"github.com/ovn-org/libovsdb/mapper"
 	"github.com/ovn-org/libovsdb/model"
 	"github.com/ovn-org/libovsdb/ovsdb"
 )
@@ -100,7 +102,47 @@ func Get(ctx context.Context, result model.Model) error {
 	return client.ErrNotFound
 }
 
-func List[T model.Model](ctx context.Context, results *[]T) error {
+func getOperations(modelInfo *mapper.Info, colInfo ...string) ([]ovsdb.Operation, error) {
+	var operations []ovsdb.Operation
+
+	if len(colInfo) == 0 {
+		operations = append(operations, ovsdb.Operation{
+			Op:    ovsdb.OperationSelect,
+			Table: modelInfo.Metadata.TableName,
+		})
+	} else {
+		if len(colInfo) < 2 {
+			return nil, errors.New("at least one column value must be specified")
+		}
+		column := colInfo[0]
+		_, ok := modelInfo.Metadata.Fields[column]
+		if !ok {
+			return nil, errors.New("column is not in table model")
+		}
+		values := colInfo[1:]
+		for _, v := range values {
+			conds := []ovsdb.Condition{
+				{
+					Column:   column,
+					Function: ovsdb.ConditionEqual,
+					Value:    v,
+				},
+			}
+			if column == "_uuid" {
+				conds[0].Value = []string{"uuid", v}
+			}
+			o := ovsdb.Operation{
+				Op:    ovsdb.OperationSelect,
+				Table: modelInfo.Metadata.TableName,
+				Where: conds,
+			}
+			operations = append(operations, o)
+		}
+	}
+	return operations, nil
+}
+
+func List[T model.Model](ctx context.Context, results *[]T, colInfo ...string) error {
 	db, err := connect(ctx)
 	if err != nil {
 		log.Errf("connect: %s", err)
@@ -115,10 +157,12 @@ func List[T model.Model](ctx context.Context, results *[]T) error {
 		return err
 	}
 
-	res, err := db.Transact(ctx, ovsdb.Operation{
-		Op:    ovsdb.OperationSelect,
-		Table: info.Metadata.TableName,
-	})
+	operations, err := getOperations(info, colInfo...)
+	if err != nil {
+		log.Errf("getOperations: %s", err)
+		return err
+	}
+	res, err := db.Transact(ctx, operations...)
 	if err != nil {
 		log.Errf("Transact: %s", err)
 		return err

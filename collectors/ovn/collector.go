@@ -6,6 +6,7 @@ package ovn
 import (
 	"bufio"
 	"context"
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -118,9 +119,11 @@ func makeMetric(name, value string) prometheus.Metric {
 }
 
 const (
-	packetInDrop           = "packet_in_drop"
-	dropBufferedPacketsMap = "pinctrl_drop_buffered_packets_map"
-	dropControllerEvent    = "pinctrl_drop_controller_event"
+	packetInDrop            = "packet_in_drop"
+	dropBufferedPacketsMap  = "pinctrl_drop_buffered_packets_map"
+	dropControllerEvent     = "pinctrl_drop_controller_event"
+	intBrdgPatchPortsTotal  = "integration_bridge_patch_ports_total"
+	intBrdgGenevePortsTotal = "integration_bridge_geneve_ports_total"
 )
 
 func isPacketInDropComponent(name string) bool {
@@ -181,6 +184,65 @@ func collectCoverageMetrics(ch chan<- prometheus.Metric) {
 	}
 }
 
+func collectIntBridgePorts(ch chan<- prometheus.Metric) {
+	var bridges []ovs.Bridge
+	var ports []ovs.Port
+	var ifaces []ovs.Interface
+	var portsInfo []string
+	var ifacesInfo []string
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	err := ovsdb.List(ctx, &bridges, []string{"name", "br-int"}...)
+	if err != nil {
+		log.Errf("db.ListByStrColumnValues(Bridge): %s", err)
+		return
+	}
+	if len(bridges) != 1 {
+		log.Errf("db.ListByStrColumnValues(Bridge): %s", errors.New("integration bridge not found"))
+		return
+	}
+
+	portsInfo = append(portsInfo, "_uuid")
+	portsInfo = append(portsInfo, bridges[0].Ports...)
+	err = ovsdb.List(ctx, &ports, portsInfo...)
+	if err != nil {
+		log.Errf("db.ListByStrColumnValues(Port): %s", err)
+		return
+	}
+
+	ifacesInfo = append(ifacesInfo, "_uuid")
+	for _, p := range ports {
+		ifacesInfo = append(ifacesInfo, p.Interfaces...)
+	}
+	err = ovsdb.List(ctx, &ifaces, ifacesInfo...)
+	if err != nil {
+		log.Errf("db.ListByStrColumnValues(Port): %s", err)
+		return
+	}
+
+	intBrdPortsTotals := map[string]float64{
+		intBrdgPatchPortsTotal:  0.0,
+		intBrdgGenevePortsTotal: 0.0,
+	}
+	for _, i := range ifaces {
+		switch i.Type {
+		case "patch":
+			intBrdPortsTotals[intBrdgPatchPortsTotal] += 1.0
+		case "geneve":
+			intBrdPortsTotals[intBrdgGenevePortsTotal] += 1.0
+		}
+	}
+	for k, v := range intBrdPortsTotals {
+		m := integrationBridgePorts[k]
+		if config.MetricSets().Has(m.Set) {
+			ch <- prometheus.MustNewConstMetric(m.Desc(), m.ValueType, v)
+		}
+	}
+
+}
+
 type Collector struct{}
 
 func (Collector) Name() string {
@@ -217,4 +279,5 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 
 	// collect the ovn-controller coverage metrics
 	collectCoverageMetrics(ch)
+	collectIntBridgePorts(ch)
 }

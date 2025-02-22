@@ -197,9 +197,25 @@ var ovnController = map[string]lib.Metric{
 	},
 }
 
+var integrationBridgePorts = map[string]lib.Metric{
+	intBrdgPatchPortsTotal: {
+		Name:        "ovnc_integration_bridge_patch_ports_total",
+		Description: "Captures the number of patch ports that connect br-int OVS bridge to physical OVS bridge and br-local OVS bridge",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_DEBUG,
+	},
+	intBrdgGenevePortsTotal: {
+		Name:        "ovnc_integration_bridge_geneve_ports_total",
+		Description: "Total number of OVN geneve ports on the integration bridge",
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_DEBUG,
+	},
+}
+
 var metrics = []*map[string]lib.Metric{
 	&openvSwitch,
 	&openvSwitchBoolean,
 	&openvSwitchLabels,
 	&ovnController,
+	&integrationBridgePorts,
 }
