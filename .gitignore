@@ -1,4 +1,4 @@
-/dataplane-node-exporter*
+/openstack-network-exporter*
 /cert.pem
 /key.pem
 /ovsdb/ovs/*.go

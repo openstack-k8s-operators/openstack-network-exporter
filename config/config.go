@@ -10,11 +10,11 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"gopkg.in/yaml.v3"
 )
 
-const defaultConfigPath = "/etc/dataplane-node-exporter.yaml"
+const defaultConfigPath = "/etc/openstack-network-exporter.yaml"
 
 type MetricSet uint
 
@@ -58,16 +58,16 @@ type user struct {
 }
 
 type conf struct {
-	HttpListen string            `yaml:"http-listen" env:"DATAPLANE_NODE_EXPORTER_HTTP_LISTEN"`
-	HttpPath   string            `yaml:"http-path" env:"DATAPLANE_NODE_EXPORTER_HTTP_PATH"`
-	TlsCert    string            `yaml:"tls-cert" env:"DATAPLANE_NODE_EXPORTER_TLS_CERT"`
-	TlsKey     string            `yaml:"tls-key" env:"DATAPLANE_NODE_EXPORTER_TLS_KEY"`
+	HttpListen string            `yaml:"http-listen" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_LISTEN"`
+	HttpPath   string            `yaml:"http-path" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_PATH"`
+	TlsCert    string            `yaml:"tls-cert" env:"OPENSTACK_NETWORK_EXPORTER_TLS_CERT"`
+	TlsKey     string            `yaml:"tls-key" env:"OPENSTACK_NETWORK_EXPORTER_TLS_KEY"`
 	AuthUsers  []user            `yaml:"auth-users"`
 	users      map[string]string `yaml:"-"`
-	OvsRundir  string            `yaml:"ovs-rundir" env:"DATAPLANE_NODE_EXPORTER_OVS_RUNDIR"`
-	OvnRundir  string            `yaml:"ovn-rundir" env:"DATAPLANE_NODE_EXPORTER_OVN_RUNDIR"`
-	OvsProcdir string            `yaml:"ovs-procdir" env:"DATAPLANE_NODE_EXPORTER_OVS_PROCDIR"`
-	LogLevel   string            `yaml:"log-level" env:"DATAPLANE_NODE_EXPORTER_LOG_LEVEL"`
+	OvsRundir  string            `yaml:"ovs-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_RUNDIR"`
+	OvnRundir  string            `yaml:"ovn-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVN_RUNDIR"`
+	OvsProcdir string            `yaml:"ovs-procdir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_PROCDIR"`
+	LogLevel   string            `yaml:"log-level" env:"OPENSTACK_NETWORK_EXPORTER_LOG_LEVEL"`
 	logLevel   syslog.Priority   `yaml:"-"`
 	Collectors []string          `yaml:"collectors"`
 	MetricSets []string          `yaml:"metric-sets"`
@@ -97,7 +97,7 @@ func AuthUsers() map[string]string { return c.users }
 func MetricSets() MetricSet        { return c.metricSets }
 
 func Parse() error {
-	path, configInEnv := os.LookupEnv("DATAPLANE_NODE_EXPORTER_YAML")
+	path, configInEnv := os.LookupEnv("OPENSTACK_NETWORK_EXPORTER_YAML")
 	if !configInEnv {
 		path = defaultConfigPath
 	}

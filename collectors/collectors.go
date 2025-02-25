@@ -4,16 +4,16 @@
 package collectors
 
 import (
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/bridge"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/coverage"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/datapath"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/iface"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/memory"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/ovn"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_perf"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/pmd_rxq"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/vswitch"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/bridge"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/coverage"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/datapath"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/iface"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/memory"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovn"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_perf"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_rxq"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/vswitch"
 )
 
 // All supported collectors. Please keep alpha sorted.

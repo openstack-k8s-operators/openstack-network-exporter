@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 )
 
 // required constants taken from openvswitch

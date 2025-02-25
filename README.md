@@ -1,10 +1,10 @@
-# Dataplane Node Exporter
+# OpenStack Network Exporter
 
 This is a prometheus exporter for dataplane (compute, network) nodes running
 with OpenvSwitch. It supports the default linux kernel and userspace DPDK data
 paths.
 
-The Dataplane Node Exporter is distributed under the [Apache 2.0][license]
+The OpenStack Network Exporter is distributed under the [Apache 2.0][license]
 license.
 
 [license]: https://spdx.org/licenses/Apache-2.0.html
@@ -21,16 +21,16 @@ make
 ## Configuration
 
 By default, the configuration will be loaded from a YAML file located at
-`/etc/dataplane-node-exporter.yaml`. If the file does not exist, the default
+`/etc/openstack-network-exporter.yaml`. If the file does not exist, the default
 configuration will be used.
 
 The location of the configuration file can be changed via the
-`DATAPLANE_NODE_EXPORTER_YAML` environment variable.
+`OPENSTACK_NETWORK_EXPORTER_YAML` environment variable.
 
 The default configuration file can be found in the git repository:
-[`dataplane-node-exporter.yaml`][conf].
+[`openstack-network-exporter.yaml`][conf].
 
-[conf]: https://github.com/openstack-k8s-operators/dataplane-node-exporter/blob/main/etc/dataplane-node-exporter.yaml
+[conf]: https://github.com/openstack-k8s-operators/openstack-network-exporter/blob/main/etc/openstack-network-exporter.yaml
 
 ## Running
 
@@ -53,7 +53,7 @@ The bridge collector will need access to each bridge OpenFlow management socket
 located at `/run/openvswitch/$BRIDGE_NAME.mgmt`.
 
 ```console
-$ ./dataplane-node-exporter
+$ ./openstack-network-exporter
 NOTICE  14:49:18 main.go:86: listening on http://:1981/metrics
 ```
 
@@ -62,7 +62,7 @@ NOTICE  14:49:18 main.go:86: listening on http://:1981/metrics
 The complete list of supported metrics can be displayed using the `-l` flag:
 
 ```console
-$ ./dataplane-node-exporter -l
+$ ./openstack-network-exporter -l
 ovs_bridge_port_count collector=bridge set=base type=gauge labels=bridge,datapath_type help="The number of ports in a bridge."
 ovs_bridge_flow_count collector=bridge set=base type=gauge labels=bridge,datapath_type help="The number of openflow rules configured on a bridge."
 ...
@@ -78,18 +78,18 @@ to point at your fork and keep a reference on the upstream repository. You can
 also take the opportunity to configure git to use SSH for pushing and https://
 for pulling.
 
-[fork]: https://github.com/openstack-k8s-operators/dataplane-node-exporter/fork
+[fork]: https://github.com/openstack-k8s-operators/openstack-network-exporter/fork
 
 ```console
 $ git remote remove origin
-$ git remote add upstream https://github.com/openstack-k8s-operators/dataplane-node-exporter
-$ git remote add origin https://github.com/rjarry/dataplane-node-exporter
+$ git remote add upstream https://github.com/openstack-k8s-operators/openstack-network-exporter
+$ git remote add origin https://github.com/rjarry/openstack-network-exporter
 $ git fetch --all
 Fetching origin
-From https://github.com/rjarry/dataplane-node-exporter
+From https://github.com/rjarry/openstack-network-exporter
  * [new branch]                main       -> origin/main
 Fetching upstream
-From https://github.com/openstack-k8s-operators/dataplane-node-exporter
+From https://github.com/openstack-k8s-operators/openstack-network-exporter
  * [new branch]                main       -> upstream/main
 $ git config url.git@github.com:.pushinsteadof https://github.com/
 ```
@@ -181,9 +181,9 @@ Total 6 (delta 5), reused 0 (delta 0), pack-reused 0 (from 0)
 remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
 remote:
 remote: Create a pull request for 'irq-counters' on GitHub by visiting:
-remote:      https://github.com/rjarry/dataplane-node-exporter/pull/new/irq-counters
+remote:      https://github.com/rjarry/openstack-network-exporter/pull/new/irq-counters
 remote:
-To github.com:rjarry/dataplane-node-exporter
+To github.com:rjarry/openstack-network-exporter
  * [new branch]                irq-counters -> irq-counters
 ```
 

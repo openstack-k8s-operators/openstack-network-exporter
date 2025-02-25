@@ -5,14 +5,14 @@ version = $(shell git describe --long --abbrev=12 --tags --dirty 2>/dev/null || 
 src = $(shell find * -type f -name '*.go') go.mod go.sum
 
 # Image URL to use all building/pushing image targets
-DEFAULT_IMG ?= quay.io/openstack-k8s-operators/dataplane-node-exporter:$(version)
-# Development: quay.io/user/dataplane-node-exporter:latest
+DEFAULT_IMG ?= quay.io/openstack-k8s-operators/openstack-network-exporter:$(version)
+# Development: quay.io/user/openstack-network-exporter:latest
 IMG ?= $(DEFAULT_IMG)
 
 .PHONY: all
-all: dataplane-node-exporter
+all: openstack-network-exporter
 
-dataplane-node-exporter: $(src) ovsdb/ovs/model.go
+openstack-network-exporter: $(src) ovsdb/ovs/model.go
 	go build -trimpath -o $@
 
 .PHONY: generate
@@ -22,9 +22,9 @@ ovsdb/ovs/model.go: ovsdb/ovs/schema.json
 	go generate ./...
 
 .PHONY: debug
-debug: dataplane-node-exporter.debug
+debug: openstack-network-exporter.debug
 
-dataplane-node-exporter.debug: $(src) ovsdb/ovs/model.go
+openstack-network-exporter.debug: $(src) ovsdb/ovs/model.go
 	go build -gcflags=all="-N -l" -o $@
 
 .PHONY: format
@@ -50,8 +50,8 @@ cert.pem key.pem:
 		-subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
 
 .PHONY: run
-run: dataplane-node-exporter cert.pem key.pem
-	DATAPLANE_NODE_EXPORTER_YAML=etc/dev.yaml ./$<
+run: openstack-network-exporter cert.pem key.pem
+	OPENSTACK_NETWORK_EXPORTER_YAML=etc/dev.yaml ./$<
 
 .PHONY: container
 container:
@@ -69,5 +69,5 @@ tag-release:
 	if [ -n "$$n" ]; then next_version="$$n"; fi && \
 	set -xe && \
 	sed -i "s/\<v$$cur_version\>/v$$next_version/" Makefile && \
-	git commit -sm "dataplane-node-exporter: release v$$next_version" -m "`git shortlog -sn v$$cur_version..`" Makefile && \
+	git commit -sm "openstack-network-exporter: release v$$next_version" -m "`git shortlog -sn v$$cur_version..`" Makefile && \
 	git tag -sm "v$$next_version" "v$$next_version"

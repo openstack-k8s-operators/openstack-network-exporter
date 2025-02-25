@@ -4,11 +4,11 @@
 package bridge
 
 import (
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/openflow"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/ovsdb/ovs"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/openflow"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovs"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

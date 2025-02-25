@@ -3,9 +3,9 @@ package iface
 import (
 	"fmt"
 
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/ovsdb/ovs"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovs"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

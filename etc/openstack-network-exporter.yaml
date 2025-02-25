@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Robin Jarry
 #
-# This is the configuration file for OpenStack dataplane-node-exporter. It is
+# This is the configuration file for OpenStack openstack-network-exporter. It is
 # written in the YAML format. The exporter will lookup the configuration file
-# at /etc/dataplane-node-exporter.yaml by default. The path can be changed via
-# the DATAPLANE_NODE_EXPORTER_YAML environment variable.
+# at /etc/openstack-network-exporter.yaml by default. The path can be changed via
+# the OPENSTACK_NETWORK_EXPORTER_YAML environment variable.
 #
 # All settings have default values and some of them can be overriden via
 # environment variables as indicated in their description.
@@ -14,28 +14,28 @@
 # "127.0.0.1:<port>" or "[::1]:<port>" to limit to localhost. If address is
 # omited, listen on all addresses.
 #
-# Env: DATAPLANE_NODE_EXPORTER_HTTP_LISTEN
+# Env: OPENSTACK_NETWORK_EXPORTER_HTTP_LISTEN
 # Default: ":1981"
 #
 #http-listen: ":1981"
 
 # The HTTP path where to serve responses to prometheus scrapers.
 #
-# Env: DATAPLANE_NODE_EXPORTER_HTTP_PATH
+# Env: OPENSTACK_NETWORK_EXPORTER_HTTP_PATH
 # Default: /metrics
 #
 #http-path: /metrics
 
 # The path to a TLS certificate to enable HTTPS support.
 #
-# Env: DATAPLANE_NODE_EXPORTER_TLS_CERT
+# Env: OPENSTACK_NETWORK_EXPORTER_TLS_CERT
 # Default: ""
 #
 #tls-cert:
 
 # The path to a TLS certificate secret key to enable HTTPS support.
 #
-# Env: DATAPLANE_NODE_EXPORTER_TLS_KEY
+# Env: OPENSTACK_NETWORK_EXPORTER_TLS_KEY
 # Default: ""
 #
 #tls-key:
@@ -61,7 +61,7 @@
 #
 # Supported levels are: debug info notice warning error critical
 #
-# Env: DATAPLANE_NODE_EXPORTER_LOG_LEVEL
+# Env: OPENSTACK_NETWORK_EXPORTER_LOG_LEVEL
 # Default: notice
 #
 #log-level: notice
@@ -70,7 +70,7 @@
 # expected to contain the the ovn-controller pid file "ovn-controller.pid" and
 # its unixctl socket "ovn-controller.$pid.ctl".
 #
-# Env: DATAPLANE_NODE_EXPORTER_OVN_RUNDIR
+# Env: OPENSTACK_NETWORK_EXPORTER_OVN_RUNDIR
 # Default: /run/ovn
 #
 #ovn-rundir: /run/ovn
@@ -80,7 +80,7 @@
 # "ovs-vswitchd.pid" file and each bridge openflow management sockets
 # "$bridge_name.mgmt".
 #
-# Env: DATAPLANE_NODE_EXPORTER_OVS_RUNDIR
+# Env: OPENSTACK_NETWORK_EXPORTER_OVS_RUNDIR
 # Default: /run/openvswitch
 #
 #ovs-rundir: /run/openvswitch
@@ -89,13 +89,13 @@
 # ovs-vswitchd.pid. When running the exporter in a different PID namespace than
 # OVS, this will need to be changed to another folder.
 #
-# Env: DATAPLANE_NODE_EXPORTER_OVS_PROCDIR
+# Env: OPENSTACK_NETWORK_EXPORTER_OVS_PROCDIR
 # Default: /proc
 #
 #ovs-procdir: /proc
 
 # List of metric collectors to scrape and export. To list the available
-# collectors and the metrics they export, use "dataplane-node-exporter -l". If
+# collectors and the metrics they export, use "openstack-network-exporter -l". If
 # the list is empty (default) all collectors will be enabled.
 #
 # Default: []
@@ -103,7 +103,7 @@
 #collectors: []
 
 # List of metric sets to export. This is cumulative with the collectors option.
-# The "dataplane-node-exporter -l" flag will list all supported metrics along
+# The "openstack-network-exporter -l" flag will list all supported metrics along
 # with their set name. If the list is empty (default) all metrics from enabled
 # collectors will be exported.
 #

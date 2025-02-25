@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/appctl"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/collectors/lib"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/appctl"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

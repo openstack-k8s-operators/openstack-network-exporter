@@ -19,10 +19,10 @@ requre-specific = true # linter exceptions must specify the linter
 
 [linters-settings.govet.settings.printf]
 funcs = [
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Debugf",
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Infof",
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Noticef",
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Warnf",
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Errf",
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log.Critf",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Debugf",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Infof",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Noticef",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Warnf",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Errf",
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log.Critf",
 ]
