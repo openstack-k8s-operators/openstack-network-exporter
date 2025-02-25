@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2024 Robin Jarry
 
-module github.com/openstack-k8s-operators/dataplane-node-exporter
+module github.com/openstack-k8s-operators/openstack-network-exporter
 
 go 1.21
 

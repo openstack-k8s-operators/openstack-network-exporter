@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/config"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/log"
-	"github.com/openstack-k8s-operators/dataplane-node-exporter/ovsdb/ovs"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovs"
 	"github.com/ovn-org/libovsdb/client"
 	"github.com/ovn-org/libovsdb/model"
 	"github.com/ovn-org/libovsdb/ovsdb"
