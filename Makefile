@@ -71,3 +71,12 @@ tag-release:
 	sed -i "s/\<v$$cur_version\>/v$$next_version/" Makefile && \
 	git commit -sm "openstack-network-exporter: release v$$next_version" -m "`git shortlog -sn v$$cur_version..`" Makefile && \
 	git tag -sm "v$$next_version" "v$$next_version"
+
+.PHONY: shellcheck
+shellcheck: test/*.sh
+	shellcheck -e SC2317 test/*.sh
+
+.PHONY: test
+test: openstack-network-exporter
+	sudo bash -x ./test/config_test_environment.sh
+	sudo bash -x ./test/run_tests.sh -r 5
