@@ -194,6 +194,7 @@ func (Collector) Metrics() []lib.Metric {
 			res = append(res, m)
 		}
 	}
+	res = append(res, bridgeMappings)
 	return res
 }
 
