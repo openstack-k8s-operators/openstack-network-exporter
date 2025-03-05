@@ -126,7 +126,7 @@ commits). Follow these general rules:
   frotz"*, as if you are giving orders to the codebase to change its behaviour.
 - If you are fixing an issue, add an appropriate `Closes: <ISSUE_URL>` trailer.
 - If you are fixing a regression introduced by another commit, add a `Fixes:
-  <SHORT_ID_12_LONG> "<COMMIT_TITLE>"` trailer.
+  <SHORT_ID_12_LONG> ("<COMMIT_TITLE>")` trailer.
 - When in doubt, follow the format and layout of the recent existing commits.
 - The following trailers are accepted in commits. If you are using multiple
   trailers in a commit, it's preferred to also order them according to this
