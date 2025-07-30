@@ -1,5 +1,6 @@
 #!/bin/bash
 
+apt-get update -y
 apt-get install openvswitch-switch-dpdk iperf3 socat -y
 update-alternatives --set ovs-vswitchd \
 	/usr/lib/openvswitch-switch-dpdk/ovs-vswitchd-dpdk
