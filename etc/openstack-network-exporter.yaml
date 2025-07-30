@@ -66,9 +66,10 @@
 #
 #log-level: notice
 
-# The absolute path to the runtime directory of ovn-controller. This folder is
-# expected to contain the the ovn-controller pid file "ovn-controller.pid" and
-# its unixctl socket "ovn-controller.$pid.ctl".
+# The absolute path to the runtime directory of the ovn services. This folder
+# is expected to contain the ovn services pid file like "<service>.pid" and
+# its unixctl socket like "<service>.$pid.ctl". If "<service>.pid" is missing
+# unixctl socket will be located in the folder with regex "<service>.*.ctl"
 #
 # Env: OPENSTACK_NETWORK_EXPORTER_OVN_RUNDIR
 # Default: /run/ovn

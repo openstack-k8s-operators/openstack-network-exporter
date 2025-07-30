@@ -11,6 +11,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/memory"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovn"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovnnorthd"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_perf"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_rxq"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/vswitch"
@@ -23,6 +24,7 @@ var collectors = []lib.Collector{
 	new(datapath.Collector),
 	new(iface.Collector),
 	new(memory.Collector),
+	new(ovnnorthd.Collector),
 	new(ovn.Collector),
 	new(pmd_perf.Collector),
 	new(pmd_rxq.Collector),
