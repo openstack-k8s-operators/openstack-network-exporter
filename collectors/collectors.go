@@ -15,6 +15,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovsdbserver"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_perf"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/pmd_rxq"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/sriov"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/vswitch"
 )
 
@@ -30,6 +31,7 @@ var collectors = []lib.Collector{
 	new(ovsdbserver.Collector),
 	new(pmd_perf.Collector),
 	new(pmd_rxq.Collector),
+	new(sriov.Collector),
 	new(vswitch.Collector),
 }
 
