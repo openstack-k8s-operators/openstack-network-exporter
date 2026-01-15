@@ -3,20 +3,17 @@
 package sriov
 
 import (
-	"bufio"
-	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/safchain/ethtool"
 )
 
 type Collector struct{}
@@ -179,35 +176,14 @@ func getVFNumber(devicePath string) (int, string) {
 	return -1, ""
 }
 
-var ethtoolStatRe = regexp.MustCompile(`^\s+(\w+):\s+(\d+)$`)
-
-func getEthtoolStats(iface string) (map[string]float64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "ethtool", "-S", iface)
-	output, err := cmd.Output()
+func getEthtoolStats(iface string) (map[string]uint64, error) {
+	eth, err := ethtool.NewEthtool()
 	if err != nil {
 		return nil, err
 	}
+	defer eth.Close()
 
-	stats := make(map[string]float64)
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		match := ethtoolStatRe.FindStringSubmatch(line)
-		if match != nil {
-			value, err := strconv.ParseFloat(match[2], 64)
-			if err != nil {
-				log.Debugf("failed to parse %s=%s: %s", match[1], match[2], err)
-				continue
-			}
-			stats[match[1]] = value
-		}
-	}
-
-	return stats, scanner.Err()
+	return eth.Stats(iface)
 }
 
 func buildLabels(info InterfaceInfo, dataSource string) []string {
@@ -278,7 +254,7 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 	for _, iface := range interfaces {
 		stats, err := getEthtoolStats(iface.Name)
 		if err != nil {
-			log.Debugf("ethtool -S %s: %s", iface.Name, err)
+			log.Debugf("ethtool stats %s: %s", iface.Name, err)
 			continue
 		}
 
@@ -300,7 +276,7 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats map[string]float64) {
+func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats map[string]uint64) {
 	for statName, value := range stats {
 		if _, _, ok := parseVFStat(statName); ok {
 			continue
@@ -323,7 +299,7 @@ func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats m
 
 			if config.MetricSets().Has(config.METRICS_PERF) {
 				ch <- prometheus.MustNewConstMetric(
-					desc, prometheus.CounterValue, value, queueLabels...)
+					desc, prometheus.CounterValue, float64(value), queueLabels...)
 			}
 			continue
 		}
@@ -331,13 +307,13 @@ func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats m
 		if m, ok := metrics[statName]; ok {
 			if config.MetricSets().Has(m.Set) {
 				ch <- prometheus.MustNewConstMetric(
-					m.Desc(), m.ValueType, value, labels...)
+					m.Desc(), m.ValueType, float64(value), labels...)
 			}
 		}
 	}
 }
 
-func collectPerVFStatsFromPF(ch chan<- prometheus.Metric, pfInfo InterfaceInfo, stats map[string]float64, seenVFStats map[string]bool) {
+func collectPerVFStatsFromPF(ch chan<- prometheus.Metric, pfInfo InterfaceInfo, stats map[string]uint64, seenVFStats map[string]bool) {
 	for statName, value := range stats {
 		vfNum, statType, ok := parseVFStat(statName)
 		if !ok {
@@ -376,7 +352,7 @@ func collectPerVFStatsFromPF(ch chan<- prometheus.Metric, pfInfo InterfaceInfo, 
 
 		if config.MetricSets().Has(metricSet) {
 			ch <- prometheus.MustNewConstMetric(
-				desc, prometheus.CounterValue, value, vfLabels...)
+				desc, prometheus.CounterValue, float64(value), vfLabels...)
 		}
 	}
 }

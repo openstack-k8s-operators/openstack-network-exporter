@@ -9,6 +9,7 @@ require (
 	github.com/go-logr/logr v1.4.1
 	github.com/ovn-org/libovsdb v0.7.0
 	github.com/prometheus/client_golang v1.20.5
+	github.com/safchain/ethtool v0.4.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
