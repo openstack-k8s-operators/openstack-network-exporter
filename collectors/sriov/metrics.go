@@ -18,6 +18,67 @@ var extendedLabels = []string{
 	"numa_node",
 }
 
+// vfNetlinkMetrics are metrics collected via netlink for VFs (especially vfio-pci bound)
+var vfNetlinkMetrics = map[string]lib.Metric{
+	"rx_bytes": {
+		Name:        "sriov_vf_rx_bytes_total",
+		Description: "Total bytes received by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"tx_bytes": {
+		Name:        "sriov_vf_tx_bytes_total",
+		Description: "Total bytes transmitted by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"rx_packets": {
+		Name:        "sriov_vf_rx_packets_total",
+		Description: "Total packets received by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"tx_packets": {
+		Name:        "sriov_vf_tx_packets_total",
+		Description: "Total packets transmitted by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"rx_multicast": {
+		Name:        "sriov_vf_rx_multicast_total",
+		Description: "Total multicast packets received by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"rx_broadcast": {
+		Name:        "sriov_vf_rx_broadcast_total",
+		Description: "Total broadcast packets received by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_COUNTERS,
+	},
+	"rx_dropped": {
+		Name:        "sriov_vf_rx_dropped_total",
+		Description: "Total packets dropped on receive by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_ERRORS,
+	},
+	"tx_dropped": {
+		Name:        "sriov_vf_tx_dropped_total",
+		Description: "Total packets dropped on transmit by VF (from netlink)",
+		Labels:      extendedLabels,
+		ValueType:   prometheus.CounterValue,
+		Set:         config.METRICS_ERRORS,
+	},
+}
+
+// metrics are metrics collected via ethtool for PFs and VFs with network drivers
 var metrics = map[string]lib.Metric{
 	"rx_bytes": {
 		Name:        "sriov_rx_bytes_total",

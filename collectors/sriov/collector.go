@@ -3,6 +3,7 @@
 package sriov
 
 import (
+	"net"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/safchain/ethtool"
+	"github.com/vishvananda/netlink"
 )
 
 type Collector struct{}
@@ -25,6 +27,9 @@ func (Collector) Name() string {
 func (Collector) Metrics() []lib.Metric {
 	var res []lib.Metric
 	for _, m := range metrics {
+		res = append(res, m)
+	}
+	for _, m := range vfNetlinkMetrics {
 		res = append(res, m)
 	}
 	return res
@@ -210,32 +215,50 @@ func buildLabels(info InterfaceInfo, dataSource string) []string {
 	}
 }
 
-var vfStatPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`^vf_(\w+)\[(\d+)\]$`), // ixgbe: vf_rx_packets[0]
-	regexp.MustCompile(`^vf-(\d+)-(\w+)$`),    // i40e: vf-0-rx_packets
-	regexp.MustCompile(`^vf_(\d+)_(\w+)$`),    // ice: vf_0_rx_packets
+// VFStats holds statistics for a VF obtained via netlink
+type VFStats struct {
+	VFNum     int
+	MAC       net.HardwareAddr
+	RxBytes   uint64
+	TxBytes   uint64
+	RxPackets uint64
+	TxPackets uint64
+	Multicast uint64
+	Broadcast uint64
+	RxDropped uint64
+	TxDropped uint64
 }
 
-func parseVFStat(statName string) (vfNum int, statType string, ok bool) {
-	if match := vfStatPatterns[0].FindStringSubmatch(statName); match != nil {
-		statType = match[1]
-		vfNum, _ = strconv.Atoi(match[2])
-		return vfNum, statType, true
+// getVFStatsFromNetlink retrieves per-VF statistics using netlink (ip -s link show)
+func getVFStatsFromNetlink(ifaceName string) ([]VFStats, error) {
+	link, err := netlink.LinkByName(ifaceName)
+	if err != nil {
+		return nil, err
 	}
 
-	if match := vfStatPatterns[1].FindStringSubmatch(statName); match != nil {
-		vfNum, _ = strconv.Atoi(match[1])
-		statType = match[2]
-		return vfNum, statType, true
+	vfInfos := link.Attrs().Vfs
+	if len(vfInfos) == 0 {
+		return nil, nil
 	}
 
-	if match := vfStatPatterns[2].FindStringSubmatch(statName); match != nil {
-		vfNum, _ = strconv.Atoi(match[1])
-		statType = match[2]
-		return vfNum, statType, true
+	var stats []VFStats
+	for _, vf := range vfInfos {
+		s := VFStats{
+			VFNum:     vf.ID,
+			MAC:       vf.Mac,
+			RxBytes:   vf.RxBytes,
+			TxBytes:   vf.TxBytes,
+			RxPackets: vf.RxPackets,
+			TxPackets: vf.TxPackets,
+			Multicast: vf.Multicast,
+			Broadcast: vf.Broadcast,
+			RxDropped: vf.RxDropped,
+			TxDropped: vf.TxDropped,
+		}
+		stats = append(stats, s)
 	}
 
-	return 0, "", false
+	return stats, nil
 }
 
 var queueStatRe = regexp.MustCompile(`^(tx|rx)_queue_(\d+)_(packets|bytes)$`)
@@ -271,17 +294,14 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 		if iface.IsPF {
 			labels := buildLabels(iface, "direct")
 			collectInterfaceStats(ch, labels, stats)
-			collectPerVFStatsFromPF(ch, iface, stats, seenVFStats)
+			// Use netlink to get per-VF stats (works on ice, mlx5_core, etc.)
+			collectVFStatsFromNetlink(ch, iface, seenVFStats)
 		}
 	}
 }
 
 func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats map[string]uint64) {
 	for statName, value := range stats {
-		if _, _, ok := parseVFStat(statName); ok {
-			continue
-		}
-
 		if match := queueStatRe.FindStringSubmatch(statName); match != nil {
 			direction := match[1]
 			queueNum := match[2]
@@ -313,46 +333,61 @@ func collectInterfaceStats(ch chan<- prometheus.Metric, labels []string, stats m
 	}
 }
 
-func collectPerVFStatsFromPF(ch chan<- prometheus.Metric, pfInfo InterfaceInfo, stats map[string]uint64, seenVFStats map[string]bool) {
-	for statName, value := range stats {
-		vfNum, statType, ok := parseVFStat(statName)
-		if !ok {
-			continue
-		}
+func emitVFMetric(ch chan<- prometheus.Metric, metricKey string, value uint64, labels []string) {
+	m := vfNetlinkMetrics[metricKey]
+	ch <- prometheus.MustNewConstMetric(m.Desc(), m.ValueType, float64(value), labels...)
+}
 
-		key := pfInfo.PCIAddr + ":" + strconv.Itoa(vfNum)
+func collectVFStatsFromNetlink(ch chan<- prometheus.Metric, pfInfo InterfaceInfo, seenVFStats map[string]bool) {
+	vfStats, err := getVFStatsFromNetlink(pfInfo.Name)
+	if err != nil {
+		log.Debugf("netlink VF stats for %s: %s", pfInfo.Name, err)
+		return
+	}
+
+	if len(vfStats) == 0 {
+		log.Debugf("no VF stats from netlink for %s", pfInfo.Name)
+		return
+	}
+
+	log.Debugf("collected %d VF stats via netlink for PF %s", len(vfStats), pfInfo.Name)
+
+	for _, vf := range vfStats {
+		key := pfInfo.PCIAddr + ":" + strconv.Itoa(vf.VFNum)
+
+		// Skip if we already collected direct stats for this VF
 		if seenVFStats[key] {
+			log.Debugf("skipping VF %d on %s - already have direct stats", vf.VFNum, pfInfo.Name)
 			continue
 		}
 
-		metricName := "sriov_vf_" + statType + "_total"
+		// Determine driver - if not in seenVFStats, it's likely vfio-pci
+		driver := "vfio-pci"
 
 		vfLabels := []string{
-			"",
-			"vf",
-			pfInfo.PCIAddr,
-			strconv.Itoa(vfNum),
-			"vfio-pci",
-			"pf_aggregate",
+			"",                        // interface (empty for vfio-pci)
+			"vf",                      // type
+			pfInfo.PCIAddr,            // parent_pf
+			strconv.Itoa(vf.VFNum),    // vf_num
+			driver,                    // driver
+			"netlink",                 // data_source
+			pfInfo.NumaNode,           // numa_node
 		}
 
-		desc := prometheus.NewDesc(
-			metricName,
-			"VF "+statType+" collected from PF",
-			extendedLabels,
-			nil,
-		)
-
-		var metricSet config.MetricSet
-		if strings.Contains(statType, "error") || strings.Contains(statType, "drop") {
-			metricSet = config.METRICS_ERRORS
-		} else {
-			metricSet = config.METRICS_COUNTERS
+		// Emit counter metrics
+		if config.MetricSets().Has(config.METRICS_COUNTERS) {
+			emitVFMetric(ch, "rx_bytes", vf.RxBytes, vfLabels)
+			emitVFMetric(ch, "tx_bytes", vf.TxBytes, vfLabels)
+			emitVFMetric(ch, "rx_packets", vf.RxPackets, vfLabels)
+			emitVFMetric(ch, "tx_packets", vf.TxPackets, vfLabels)
+			emitVFMetric(ch, "rx_multicast", vf.Multicast, vfLabels)
+			emitVFMetric(ch, "rx_broadcast", vf.Broadcast, vfLabels)
 		}
 
-		if config.MetricSets().Has(metricSet) {
-			ch <- prometheus.MustNewConstMetric(
-				desc, prometheus.CounterValue, float64(value), vfLabels...)
+		// Emit error metrics
+		if config.MetricSets().Has(config.METRICS_ERRORS) {
+			emitVFMetric(ch, "rx_dropped", vf.RxDropped, vfLabels)
+			emitVFMetric(ch, "tx_dropped", vf.TxDropped, vfLabels)
 		}
 	}
 }
