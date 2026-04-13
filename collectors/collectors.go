@@ -10,6 +10,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/iface"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/memory"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/netvf"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovn"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovnnorthd"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/ovsdbserver"
@@ -25,6 +26,7 @@ var collectors = []lib.Collector{
 	new(datapath.Collector),
 	new(iface.Collector),
 	new(memory.Collector),
+	new(netvf.Collector),
 	new(ovnnorthd.Collector),
 	new(ovn.Collector),
 	new(ovsdbserver.Collector),
