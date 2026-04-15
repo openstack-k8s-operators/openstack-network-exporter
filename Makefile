@@ -27,6 +27,11 @@ debug: openstack-network-exporter.debug
 openstack-network-exporter.debug: $(src) ovsdb/ovs/model.go
 	go build -gcflags=all="-N -l" -o $@
 
+.PHONY: update-deps
+update-deps:
+	go get -u -t
+	go mod tidy
+
 .PHONY: format
 format:
 	gofmt -w .
