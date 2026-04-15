@@ -29,8 +29,7 @@ openstack-network-exporter.debug: $(src) ovsdb/ovs/model.go
 
 .PHONY: update-deps
 update-deps:
-	go get -u -t
-	go mod tidy
+	@./update-deps.sh
 
 .PHONY: format
 format:
