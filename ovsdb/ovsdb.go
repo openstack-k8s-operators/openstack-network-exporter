@@ -11,9 +11,9 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovs"
-	"github.com/ovn-kubernetes/libovsdb/client"
-	"github.com/ovn-kubernetes/libovsdb/model"
-	"github.com/ovn-kubernetes/libovsdb/ovsdb"
+	"github.com/ovn-org/libovsdb/client"
+	"github.com/ovn-org/libovsdb/model"
+	"github.com/ovn-org/libovsdb/ovsdb"
 )
 
 var (
