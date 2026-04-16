@@ -58,6 +58,23 @@ cert.pem key.pem:
 run: openstack-network-exporter cert.pem key.pem
 	OPENSTACK_NETWORK_EXPORTER_YAML=etc/dev.yaml ./$<
 
+# Closest public equivalent to openshift/golang-builder:rhel_9_golang_1.24
+# used in the CPaaS/Cachito product build.
+PRODUCT_BUILDER ?= registry.access.redhat.com/ubi9/go-toolset:1.24
+GOMODCACHE ?= $(shell go env GOMODCACHE)
+
+.PHONY: build-product
+build-product:
+	podman run --rm --user root \
+		-v $(CURDIR):/app:z \
+		-v $(GOMODCACHE):/go/pkg/mod:z,ro \
+		-w /app \
+		-e GOMODCACHE=/go/pkg/mod \
+		$(PRODUCT_BUILDER) bash -c \
+		'CGO_ENABLED=1 GO111MODULE=on go generate ./... && \
+		 CGO_ENABLED=1 GO111MODULE=on go build -trimpath -mod=readonly \
+		   -tags=strictfipsruntime -a -o openstack-network-exporter .'
+
 .PHONY: container
 container:
 	podman build -t ${IMG} .

@@ -20,6 +20,31 @@ jobs:
       - uses: actions/checkout@v4
       - run: make
 
+  build-product:
+    name: Product build (ubi9/go-toolset:1.24, CGO, FIPS)
+    runs-on: ubuntu-latest
+    container:
+      image: registry.access.redhat.com/ubi9/go-toolset:1.24
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: go-product-${{ hashFiles('go.sum') }}
+      - name: Download modules
+        run: go mod download
+      - name: Generate OVSDB models
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          CGO_ENABLED=1 GO111MODULE=on go generate ./...
+      - name: Build with product flags
+        run: |
+          CGO_ENABLED=1 GO111MODULE=on go build \
+            -trimpath -mod=readonly -tags=strictfipsruntime -a \
+            -o openstack-network-exporter .
+
   lint:
     runs-on: ubuntu-latest
     steps:
