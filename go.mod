@@ -3,7 +3,7 @@
 
 module github.com/openstack-k8s-operators/openstack-network-exporter
 
-go 1.21
+go 1.24
 
 require (
 	github.com/go-logr/logr v1.4.1
