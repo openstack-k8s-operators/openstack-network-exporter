@@ -29,7 +29,8 @@ openstack-network-exporter.debug: $(src) ovsdb/ovs/model.go
 
 .PHONY: update-deps
 update-deps:
-	@./update-deps.sh
+	go get -u -t
+	go mod tidy
 
 .PHONY: format
 format:
@@ -37,7 +38,7 @@ format:
 
 .PHONY: lint
 lint: ovsdb/ovs/model.go
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0 run
+	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4 run
 
 REVISION_RANGE ?= origin/main..
 
