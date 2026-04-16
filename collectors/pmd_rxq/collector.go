@@ -136,7 +136,7 @@ type pmdstat struct {
 	nonVolCtxSwitches uint64
 }
 
-var notPmdErr = errors.New("not a pmd thread")
+var errNotPmd = errors.New("not a pmd thread")
 
 func parseStatus(path string) (pmdstat, error) {
 	var stat pmdstat
@@ -158,7 +158,7 @@ func parseStatus(path string) (pmdstat, error) {
 		switch name {
 		case "Name:":
 			if !strings.HasPrefix(value, "pmd-c") {
-				return stat, notPmdErr
+				return stat, errNotPmd
 			}
 			stat.name = value
 		case "Cpus_allowed_list:":
@@ -204,7 +204,7 @@ func getVswitchdPmdStat() map[uint64]pmdstat {
 		if e.IsDir() {
 			stat, err := parseStatus(filepath.Join(tasks, e.Name(), "status"))
 			if err != nil {
-				if !errors.Is(err, notPmdErr) {
+				if !errors.Is(err, errNotPmd) {
 					log.Errf("status(%s): %s", e.Name(), err)
 				}
 				continue
