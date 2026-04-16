@@ -187,10 +187,10 @@ func GetRouterPortsStats() ([]RouterPortsStats, error) {
 
 		if isDataPathJump {
 			for _, aMatch := range entry.GetMatch().NxmEntries {
-				mName := aMatch.GetOXMName()
-				if mName == "reg15" {
+				switch aMatch.GetOXMName() {
+				case "reg15":
 					pTunnK = aMatch.GetOXMValue().(uint32)
-				} else if mName == "metadata" {
+				case "metadata":
 					dpTunnK = aMatch.GetOXMValue().(uint64)
 				}
 			}
