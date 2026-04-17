@@ -23,10 +23,11 @@ jobs:
 
       - name: Build binaries
         run: |
-          GOOS=linux GOARCH=amd64 go build -trimpath \
-            -o openstack-network-exporter-linux-amd64 .
-          GOOS=linux GOARCH=arm64 go build -trimpath \
-            -o openstack-network-exporter-linux-arm64 .
+          set -xe
+          GOOS=linux GOARCH=amd64 make
+          mv openstack-network-exporter openstack-network-exporter-linux-amd64
+          GOOS=linux GOARCH=arm64 make
+          mv openstack-network-exporter openstack-network-exporter-linux-arm64
           sha256sum openstack-network-exporter-linux-* > checksums.txt
 
       - name: Create release
