@@ -120,7 +120,7 @@ func Parse() error {
 
 	// override with values from environment
 	typ := reflect.TypeOf(c)
-	val := reflect.ValueOf(c)
+	val := reflect.ValueOf(&c).Elem()
 	for i := 0; i < typ.NumField(); i++ {
 		fieldVal := val.Field(i)
 		fieldType := typ.Field(i)
