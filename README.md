@@ -2,7 +2,7 @@
 
 This is a prometheus exporter for dataplane (compute, network) nodes running
 with OpenvSwitch. It supports the default linux kernel and userspace DPDK data
-paths.
+paths. :)
 
 The OpenStack Network Exporter is distributed under the [Apache 2.0][license]
 license.
