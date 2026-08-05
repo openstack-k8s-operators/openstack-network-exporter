@@ -119,6 +119,30 @@ func handShake(conn net.Conn) error {
 	return sendRecv(conn, &helloReq, &helloResp)
 }
 
+func drainPendingMessages(conn net.Conn, timeout time.Duration) {
+	_ = conn.SetReadDeadline(time.Now().Add(timeout))
+
+	buf := make([]byte, 8) // OpenFlow header size
+	for {
+		_, err := io.ReadFull(conn, buf)
+		if err != nil {
+			return
+		}
+
+		length := binary.BigEndian.Uint16(buf[2:4])
+		if length < 8 {
+			return
+		}
+		if length > 8 {
+			remaining := make([]byte, length-8)
+			_, err = io.ReadFull(conn, remaining)
+			if err != nil {
+				return
+			}
+		}
+	}
+}
+
 func (s *BridgeStats) GetAggregateStats() error {
 	conn, err := connect(s.Name)
 	if err != nil {
@@ -153,6 +177,9 @@ func (s *BridgeStats) GetAggregateStats() error {
 	s.Packets = statsResp.PacketCount
 	s.Bytes = statsResp.ByteCount
 	s.Flows = statsResp.FlowCount
+
+	// Drain any pending messages (e.g., ECHO requests) before closing
+	drainPendingMessages(conn, 100*time.Millisecond)
 
 	return nil
 }
@@ -240,27 +267,52 @@ func getFlowStats(bridge string, table uint8) (*of10.NiciraFlowStatsReply, error
 	}
 
 	reader := bufio.NewReader(conn)
-	data, err := reader.Peek(8)
+	allStats, err := readFlowStatsReplies(reader)
 	if err != nil {
 		return nil, err
 	}
-	header := &goloxi.Header{}
-	if err := header.Decode(goloxi.NewDecoder(data)); err != nil {
-		return nil, err
+
+	// Drain any pending messages (e.g., ECHO requests) before closing
+	drainPendingMessages(conn, 100*time.Millisecond)
+
+	result := of10.NewNiciraFlowStatsReply()
+	result.SetStats(allStats)
+	return result, nil
+}
+
+func readFlowStatsReplies(reader *bufio.Reader) ([]*of10.NiciraFlowStats, error) {
+	const maxIterations = 10000
+	var allStats []*of10.NiciraFlowStats
+
+	for i := 0; i < maxIterations; i++ {
+		data, err := reader.Peek(8)
+		if err != nil {
+			return nil, err
+		}
+		header := &goloxi.Header{}
+		if err := header.Decode(goloxi.NewDecoder(data)); err != nil {
+			return nil, err
+		}
+		data = make([]byte, header.Length)
+		_, err = io.ReadFull(reader, data)
+		if err != nil {
+			return nil, err
+		}
+		flows, err := of10.DecodeMessage(data)
+		if err != nil {
+			return nil, err
+		}
+		flowStatsReply, ok := flows.(*of10.NiciraFlowStatsReply)
+		if !ok {
+			return nil, fmt.Errorf("unexpected openflow response of type %T from bridge", flows)
+		}
+
+		allStats = append(allStats, flowStatsReply.GetStats()...)
+
+		if flowStatsReply.GetFlags()&of10.OFPSFReplyMore == 0 {
+			break
+		}
 	}
-	data = make([]byte, header.Length)
-	_, err = io.ReadFull(reader, data)
-	if err != nil {
-		return nil, err
-	}
-	flows, err := of10.DecodeMessage(data)
-	if err != nil {
-		return nil, err
-	}
-	switch t := flows.(type) {
-	case *of10.NiciraFlowStatsReply:
-		return t, nil
-	default:
-		return nil, fmt.Errorf("unexpected openflow response of type %T from bridge", t)
-	}
+
+	return allStats, nil
 }
