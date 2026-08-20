@@ -105,3 +105,28 @@
 #  - errors
 #  - perf
 #  - counters
+
+# Connection string for the OVN Southbound DB. If empty, auto-discovered
+# from the ovn-remote key in Open_vSwitch external_ids.
+#
+# Env: OPENSTACK_NETWORK_EXPORTER_OVN_SB_CONNECTION
+# Default: "" (auto-discover)
+#
+#ovn-sb-connection:
+
+# SSL certificate paths for OVN SB DB connection.
+#
+# Env: OPENSTACK_NETWORK_EXPORTER_OVN_SB_PRIVATE_KEY
+# Default: /etc/pki/tls/private/ovndb.key
+#
+#ovn-sb-private-key: /etc/pki/tls/private/ovndb.key
+
+# Env: OPENSTACK_NETWORK_EXPORTER_OVN_SB_CERTIFICATE
+# Default: /etc/pki/tls/certs/ovndb.crt
+#
+#ovn-sb-certificate: /etc/pki/tls/certs/ovndb.crt
+
+# Env: OPENSTACK_NETWORK_EXPORTER_OVN_SB_CA_CERT
+# Default: /etc/pki/tls/certs/ovndbca.crt
+#
+#ovn-sb-ca-cert: /etc/pki/tls/certs/ovndbca.crt

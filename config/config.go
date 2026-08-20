@@ -66,6 +66,10 @@ type conf struct {
 	MetricSets    []string        `yaml:"metric-sets"`
 	metricSets    MetricSet       `yaml:"-"`
 	IntBrdNam     string          `yaml:"br-int-name" env:"OPENSTACK_NETWORK_EXPORTER_BR_INT_NAME"`
+	OvnSBConn     string          `yaml:"ovn-sb-connection" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CONNECTION"`
+	OvnSBKey      string          `yaml:"ovn-sb-private-key" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_PRIVATE_KEY"`
+	OvnSBCert     string          `yaml:"ovn-sb-certificate" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CERTIFICATE"`
+	OvnSBCACert   string          `yaml:"ovn-sb-ca-cert" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CA_CERT"`
 }
 
 var c = conf{
@@ -77,6 +81,9 @@ var c = conf{
 	OvsProcdir:  "/proc",
 	LogLevel:    "notice",
 	IntBrdNam:   "br-int",
+	OvnSBKey:    "/etc/pki/tls/private/ovndb.key",
+	OvnSBCert:   "/etc/pki/tls/certs/ovndb.crt",
+	OvnSBCACert: "/etc/pki/tls/certs/ovndbca.crt",
 }
 
 func HttpListen() string        { return c.HttpListen }
@@ -90,6 +97,10 @@ func Collectors() []string      { return c.Collectors }
 func LogLevel() syslog.Priority { return c.logLevel }
 func MetricSets() MetricSet     { return c.metricSets }
 func IntBrdNam() string         { return c.IntBrdNam }
+func OvnSBConnection() string   { return c.OvnSBConn }
+func OvnSBPrivateKey() string   { return c.OvnSBKey }
+func OvnSBCertificate() string  { return c.OvnSBCert }
+func OvnSBCACert() string       { return c.OvnSBCACert }
 
 func Parse() error {
 	path, configInEnv := os.LookupEnv("OPENSTACK_NETWORK_EXPORTER_YAML")
