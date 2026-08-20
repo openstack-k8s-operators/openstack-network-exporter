@@ -17,6 +17,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/openflow"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovnsb"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovs"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -183,6 +184,61 @@ func collectCoverageMetrics(ch chan<- prometheus.Metric) {
 	}
 }
 
+type routerInfo struct {
+	routerID   string
+	routerName string
+}
+
+func buildRouterMaps(ctx context.Context) (map[uint64]routerInfo, map[uint64]map[uint32]string) {
+	dpMap := make(map[uint64]routerInfo)
+	portMap := make(map[uint64]map[uint32]string)
+
+	var datapaths []ovnsb.DatapathBinding
+	if err := ovsdb.SBList(ctx, &datapaths); err != nil {
+		log.Errf("SBList(DatapathBinding): %s", err)
+		return dpMap, portMap
+	}
+
+	uuidToTunnelKey := make(map[string]uint64)
+	for _, dp := range datapaths {
+		name := dp.ExternalIDs["name"]
+		if !strings.HasPrefix(name, "neutron-") {
+			continue
+		}
+		tk := uint64(dp.TunnelKey)
+		uuidToTunnelKey[dp.UUID] = tk
+		dpMap[tk] = routerInfo{
+			routerID:   strings.TrimPrefix(name, "neutron-"),
+			routerName: dp.ExternalIDs["name2"],
+		}
+	}
+
+	var ports []ovnsb.PortBinding
+	if err := ovsdb.SBList(ctx, &ports); err != nil {
+		log.Errf("SBList(PortBinding): %s", err)
+		return dpMap, portMap
+	}
+
+	for _, p := range ports {
+		dpTK, ok := uuidToTunnelKey[p.Datapath]
+		if !ok {
+			continue
+		}
+		if _, ok := portMap[dpTK]; !ok {
+			portMap[dpTK] = make(map[uint32]string)
+		}
+		portID := p.LogicalPort
+		if strings.HasPrefix(portID, "cr-lrp-") {
+			portID = strings.TrimPrefix(portID, "cr-lrp-")
+		} else if strings.HasPrefix(portID, "lrp-") {
+			portID = strings.TrimPrefix(portID, "lrp-")
+		}
+		portMap[dpTK][uint32(p.TunnelKey)] = portID
+	}
+
+	return dpMap, portMap
+}
+
 func collectLogicalRouters(ch chan<- prometheus.Metric) {
 	var value float64
 
@@ -192,10 +248,23 @@ func collectLogicalRouters(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	dpMap, portMap := buildRouterMaps(ctx)
+
 	for _, s := range rps {
+		ri := dpMap[s.DPTunnelKey]
+		portID := ""
+		if pm, ok := portMap[s.DPTunnelKey]; ok {
+			portID = pm[s.PortTunnelKey]
+		}
+
 		labels := []string{
 			strconv.FormatUint(s.DPTunnelKey, 10),
 			strconv.FormatUint(uint64(s.PortTunnelKey), 10),
+			ri.routerID,
+			ri.routerName,
+			portID,
 		}
 
 		for name, metric := range ovnRouterPortTraffic {
