@@ -3,3 +3,5 @@
 /key.pem
 /ovsdb/ovs/*.go
 !/ovsdb/ovs/gen.go
+/ovsdb/ovnsb/*.go
+!/ovsdb/ovnsb/gen.go
