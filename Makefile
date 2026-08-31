@@ -79,6 +79,13 @@ build-product:
 container:
 	podman build -t ${IMG} .
 
+.PHONY: container-run
+container-run:
+	podman run --rm -p 1981:1981 \
+		$(if $(wildcard /run/openvswitch),-v /run/openvswitch:/run/openvswitch:z) \
+		$(if $(wildcard /run/ovn),-v /run/ovn:/run/ovn:z) \
+		${IMG}
+
 .PHONY: push
 push:
 	podman push ${IMG}
