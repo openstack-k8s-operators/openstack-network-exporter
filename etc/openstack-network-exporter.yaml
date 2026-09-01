@@ -26,36 +26,15 @@
 #
 #http-path: /metrics
 
-# The path to a TLS certificate to enable HTTPS support.
+# Path to a web configuration file for TLS and basic authentication.
+# Uses the prometheus/exporter-toolkit web config format. See
+# etc/web-config.yaml for an example. Passwords must be bcrypt hashed.
+# Authentication is enforced regardless of whether TLS is enabled.
 #
-# Env: OPENSTACK_NETWORK_EXPORTER_TLS_CERT
+# Env: OPENSTACK_NETWORK_EXPORTER_WEB_CONFIG
 # Default: ""
 #
-#tls-cert:
-
-# The path to a TLS certificate secret key to enable HTTPS support.
-#
-# Env: OPENSTACK_NETWORK_EXPORTER_TLS_KEY
-# Default: ""
-#
-#tls-key:
-
-# List of valid users and passwords. Leave empty to disable authentication.
-# Authentication will only be enforced when TLS is enabled.
-#
-# Example:
-#
-#   auth-users:
-#     - name: admin
-#       password: admin
-#     - name: foobar
-#       password: s3cr3t
-#     - name: johndoe
-#       password: p4ssw0rd
-#
-# Default: []
-#
-#auth-users: []
+#web-config:
 
 # Overall log verbosity of the exporter.
 #

@@ -16,6 +16,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/exporter-toolkit/web"
 )
 
 var format = flag.String("l", "",
@@ -69,40 +70,29 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle(config.HttpPath(), handler)
 
-	var err error
-	server := http.Server{Addr: config.HttpListen(), Handler: mux, ErrorLog: log.ErrorLogger()}
-
-	if config.TlsCert() != "" && config.TlsKey() != "" {
-		log.Noticef("listening on https://%s%s", config.HttpListen(), config.HttpPath())
-		if len(config.AuthUsers()) > 0 {
-			server.Handler = basicAuthHandler(mux)
-		}
-		err = server.ListenAndServeTLS(config.TlsCert(), config.TlsKey())
-	} else {
-		log.Noticef("listening on http://%s%s", config.HttpListen(), config.HttpPath())
-		err = server.ListenAndServe()
+	server := &http.Server{
+		Handler:           mux,
+		ErrorLog:          log.ErrorLogger(),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
-	if err != nil {
+
+	listenAddresses := []string{config.HttpListen()}
+	webConfigFile := config.WebConfigFile()
+	systemdSocket := false
+
+	flagConfig := &web.FlagConfig{
+		WebListenAddresses: &listenAddresses,
+		WebSystemdSocket:   &systemdSocket,
+		WebConfigFile:      &webConfigFile,
+	}
+
+	log.Noticef("listening on %s%s", config.HttpListen(), config.HttpPath())
+
+	if err := web.ListenAndServe(server, flagConfig, log.SlogLogger()); err != nil {
 		log.Critf("listen: %s", err)
 		os.Exit(1)
 	}
-}
-
-func basicAuthHandler(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var user, password, pass string
-		var ok, authorized bool
-
-		if user, pass, ok = r.BasicAuth(); ok {
-			if password, ok = config.AuthUsers()[user]; ok && pass == password {
-				authorized = true
-			}
-		}
-		if authorized {
-			handler.ServeHTTP(w, r)
-		} else {
-			w.Header().Add("WWW-Authenticate", `Basic realm="ovs-node-exporter"`)
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		}
-	})
 }

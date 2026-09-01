@@ -11,7 +11,7 @@ license.
 
 ## Build
 
-A go 1.21 installation (or more recent) is required. For convenience, `make`
+A go 1.25 installation (or more recent) is required. For convenience, `make`
 can be used to avoid typing too much.
 
 ```bash
@@ -31,6 +31,24 @@ The default configuration file can be found in the git repository:
 [`openstack-network-exporter.yaml`][conf].
 
 [conf]: https://github.com/openstack-k8s-operators/openstack-network-exporter/blob/main/etc/openstack-network-exporter.yaml
+
+### TLS and Authentication
+
+TLS and basic authentication are configured via a separate web configuration
+file using the [prometheus/exporter-toolkit][toolkit] format. Set the path via
+the `web-config` field in the main config or the
+`OPENSTACK_NETWORK_EXPORTER_WEB_CONFIG` environment variable.
+
+Passwords must be bcrypt-hashed. Generate a hash with:
+
+```bash
+htpasswd -nbBC 10 "" 'password' | cut -d: -f2
+```
+
+A sample web configuration file can be found at [`etc/web-config.yaml`][webconf].
+
+[toolkit]: https://github.com/prometheus/exporter-toolkit
+[webconf]: https://github.com/openstack-k8s-operators/openstack-network-exporter/blob/main/etc/web-config.yaml
 
 ## Running
 
@@ -54,7 +72,7 @@ located at `/run/openvswitch/$BRIDGE_NAME.mgmt`.
 
 ```console
 $ ./openstack-network-exporter
-NOTICE  14:49:18 main.go:86: listening on http://:1981/metrics
+NOTICE  14:49:18 main.go:92: listening on :1981/metrics
 ```
 
 ## Metrics
