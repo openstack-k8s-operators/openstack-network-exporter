@@ -4,8 +4,10 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"log/syslog"
 	"os"
 	"strings"
@@ -242,4 +244,45 @@ func (s *sink) Println(args ...any) {
 
 func PrometheusLogger() promhttp.Logger {
 	return new(sink)
+}
+
+type slogHandler struct{}
+
+func (h *slogHandler) Enabled(_ context.Context, level slog.Level) bool {
+	switch {
+	case level >= slog.LevelError:
+		return verbosity >= syslog.LOG_ERR
+	case level >= slog.LevelWarn:
+		return verbosity >= syslog.LOG_WARNING
+	case level >= slog.LevelInfo:
+		return verbosity >= syslog.LOG_INFO
+	default:
+		return verbosity >= syslog.LOG_DEBUG
+	}
+}
+
+func (h *slogHandler) Handle(_ context.Context, r slog.Record) error {
+	msg := r.Message
+	r.Attrs(func(a slog.Attr) bool {
+		msg += " " + a.Key + "=" + a.Value.String()
+		return true
+	})
+	switch {
+	case r.Level >= slog.LevelError:
+		Errf("%s", msg)
+	case r.Level >= slog.LevelWarn:
+		Warningf("%s", msg)
+	case r.Level >= slog.LevelInfo:
+		Infof("%s", msg)
+	default:
+		Debugf("%s", msg)
+	}
+	return nil
+}
+
+func (h *slogHandler) WithAttrs(attrs []slog.Attr) slog.Handler { return h }
+func (h *slogHandler) WithGroup(name string) slog.Handler       { return h }
+
+func SlogLogger() *slog.Logger {
+	return slog.New(&slogHandler{})
 }
