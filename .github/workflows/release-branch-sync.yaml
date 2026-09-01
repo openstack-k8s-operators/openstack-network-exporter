@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: '0 * * * *'
 
+permissions:
+  contents: read
+
 jobs:
   call-build-workflow:
-    uses: openstack-k8s-operators/openstack-k8s-operators-ci/.github/workflows/release-branch-sync.yaml@main
+    uses: openstack-k8s-operators/openstack-k8s-operators-ci/.github/workflows/release-branch-sync.yaml@ac865671661462c4df1274f85341d4aa99436883 # main
