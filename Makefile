@@ -86,6 +86,17 @@ container-run:
 		$(if $(wildcard /run/ovn),-v /run/ovn:/run/ovn:z) \
 		${IMG}
 
+.PHONY: container-run-tls
+container-run-tls: cert.pem key.pem
+	podman run --rm -p 1981:1981 \
+		$(if $(wildcard /run/openvswitch),-v /run/openvswitch:/run/openvswitch:z) \
+		$(if $(wildcard /run/ovn),-v /run/ovn:/run/ovn:z) \
+		-v $(CURDIR)/etc/dev-web-config.yaml:/etc/web-config.yaml:z,ro \
+		-v $(CURDIR)/cert.pem:/etc/cert.pem:z,ro \
+		-v $(CURDIR)/key.pem:/etc/key.pem:z,ro \
+		-e OPENSTACK_NETWORK_EXPORTER_WEB_CONFIG=/etc/web-config.yaml \
+		${IMG}
+
 .PHONY: push
 push:
 	podman push ${IMG}
