@@ -52,28 +52,20 @@ func (s MetricSet) String() string {
 	return strings.Join(names, ",")
 }
 
-type user struct {
-	Name     string
-	Password string
-}
-
 type conf struct {
-	HttpListen  string            `yaml:"http-listen" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_LISTEN"`
-	HttpPath    string            `yaml:"http-path" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_PATH"`
-	TlsCert     string            `yaml:"tls-cert" env:"OPENSTACK_NETWORK_EXPORTER_TLS_CERT"`
-	TlsKey      string            `yaml:"tls-key" env:"OPENSTACK_NETWORK_EXPORTER_TLS_KEY"`
-	AuthUsers   []user            `yaml:"auth-users"`
-	users       map[string]string `yaml:"-"`
-	OvsRundir   string            `yaml:"ovs-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_RUNDIR"`
-	OvnRundir   string            `yaml:"ovn-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVN_RUNDIR"`
-	OvsdbRundir string            `yaml:"ovsdb-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVSDB_RUNDIR"`
-	OvsProcdir  string            `yaml:"ovs-procdir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_PROCDIR"`
-	LogLevel    string            `yaml:"log-level" env:"OPENSTACK_NETWORK_EXPORTER_LOG_LEVEL"`
-	logLevel    syslog.Priority   `yaml:"-"`
-	Collectors  []string          `yaml:"collectors"`
-	MetricSets  []string          `yaml:"metric-sets"`
-	metricSets  MetricSet         `yaml:"-"`
-	IntBrdNam   string            `yaml:"br-int-name" env:"OPENSTACK_NETWORK_EXPORTER_BR_INT_NAME"`
+	HttpListen    string          `yaml:"http-listen" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_LISTEN"`
+	HttpPath      string          `yaml:"http-path" env:"OPENSTACK_NETWORK_EXPORTER_HTTP_PATH"`
+	WebConfigFile string          `yaml:"web-config" env:"OPENSTACK_NETWORK_EXPORTER_WEB_CONFIG"`
+	OvsRundir     string          `yaml:"ovs-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_RUNDIR"`
+	OvnRundir     string          `yaml:"ovn-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVN_RUNDIR"`
+	OvsdbRundir   string          `yaml:"ovsdb-rundir" env:"OPENSTACK_NETWORK_EXPORTER_OVSDB_RUNDIR"`
+	OvsProcdir    string          `yaml:"ovs-procdir" env:"OPENSTACK_NETWORK_EXPORTER_OVS_PROCDIR"`
+	LogLevel      string          `yaml:"log-level" env:"OPENSTACK_NETWORK_EXPORTER_LOG_LEVEL"`
+	logLevel      syslog.Priority `yaml:"-"`
+	Collectors    []string        `yaml:"collectors"`
+	MetricSets    []string        `yaml:"metric-sets"`
+	metricSets    MetricSet       `yaml:"-"`
+	IntBrdNam     string          `yaml:"br-int-name" env:"OPENSTACK_NETWORK_EXPORTER_BR_INT_NAME"`
 }
 
 var c = conf{
@@ -84,23 +76,20 @@ var c = conf{
 	OvsdbRundir: "/run/ovn",
 	OvsProcdir:  "/proc",
 	LogLevel:    "notice",
-	users:       make(map[string]string),
 	IntBrdNam:   "br-int",
 }
 
-func HttpListen() string           { return c.HttpListen }
-func HttpPath() string             { return c.HttpPath }
-func TlsCert() string              { return c.TlsCert }
-func TlsKey() string               { return c.TlsKey }
-func OvsRundir() string            { return c.OvsRundir }
-func OvnRundir() string            { return c.OvnRundir }
-func OvsdbRundir() string          { return c.OvsdbRundir }
-func OvsProcdir() string           { return c.OvsProcdir }
-func Collectors() []string         { return c.Collectors }
-func LogLevel() syslog.Priority    { return c.logLevel }
-func AuthUsers() map[string]string { return c.users }
-func MetricSets() MetricSet        { return c.metricSets }
-func IntBrdNam() string            { return c.IntBrdNam }
+func HttpListen() string        { return c.HttpListen }
+func HttpPath() string          { return c.HttpPath }
+func WebConfigFile() string     { return c.WebConfigFile }
+func OvsRundir() string         { return c.OvsRundir }
+func OvnRundir() string         { return c.OvnRundir }
+func OvsdbRundir() string       { return c.OvsdbRundir }
+func OvsProcdir() string        { return c.OvsProcdir }
+func Collectors() []string      { return c.Collectors }
+func LogLevel() syslog.Priority { return c.logLevel }
+func MetricSets() MetricSet     { return c.metricSets }
+func IntBrdNam() string         { return c.IntBrdNam }
 
 func Parse() error {
 	path, configInEnv := os.LookupEnv("OPENSTACK_NETWORK_EXPORTER_YAML")
@@ -136,9 +125,6 @@ func Parse() error {
 	}
 
 	// parse complex values
-	for _, user := range c.AuthUsers {
-		c.users[user.Name] = user.Password
-	}
 	if prio, err := log.ParseLogLevel(c.LogLevel); err != nil {
 		return err
 	} else {

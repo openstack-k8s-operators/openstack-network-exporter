@@ -4,10 +4,6 @@
 ---
 http-listen: :1981
 http-path: /metrics
-tls-cert: cert.pem
-tls-key: key.pem
-auth-users:
-  - name: admin
-    password: admin
+web-config: etc/dev-web-config.yaml
 log-level: debug
 ovs-rundir: /usr/local/var/run/openvswitch

@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Anthony Harivel
+#
+# Web server configuration for TLS and basic authentication.
+# Uses the prometheus/exporter-toolkit web config format.
+# See: https://github.com/prometheus/exporter-toolkit/blob/main/docs/web-configuration.md
+#
+# Passwords must be bcrypt hashed. Generate with:
+#   htpasswd -nbBC 10 "" <password> | cut -d: -f2
+#
+# To enable, set "web-config" in openstack-network-exporter.yaml or
+# OPENSTACK_NETWORK_EXPORTER_WEB_CONFIG environment variable.
+
+---
+# TLS configuration. Remove or leave empty to serve plain HTTP.
+#
+#tls_server_config:
+#  cert_file: /path/to/cert.pem
+#  key_file: /path/to/key.pem
+#  min_version: TLS12
+
+# Basic authentication users. Remove or leave empty to disable auth.
+# Auth is enforced regardless of whether TLS is enabled.
+#
+#basic_auth_users:
+#  admin: <bcrypt-hashed-password>
