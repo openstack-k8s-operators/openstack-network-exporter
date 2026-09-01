@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Anthony Harivel
+#
+# Development web config — TLS with self-signed cert + basic auth.
+# Generate certs with: make cert
+
+---
+tls_server_config:
+  cert_file: cert.pem
+  key_file: key.pem
+
+basic_auth_users:
+  admin: "$2b$10$24O5M9YTzV/p86ZebryyAO.CkKd6xwJaTTp8cuxnTDz2Y/GBxJL5W"
