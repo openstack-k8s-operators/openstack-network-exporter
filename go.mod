@@ -6,7 +6,7 @@ module github.com/openstack-k8s-operators/openstack-network-exporter
 go 1.25.0
 
 require (
-	github.com/go-logr/logr v1.4.3
+	github.com/go-logr/logr v1.4.4
 	github.com/jsimonetti/rtnetlink/v2 v2.2.0
 	github.com/ovn-kubernetes/libovsdb v0.8.1
 	github.com/prometheus/client_golang v1.23.2
