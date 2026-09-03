@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Robin Jarry
 
-FROM registry.access.redhat.com/ubi10/ubi@sha256:87aaae2d47f11416cfb24a581a17f9875a3e59e9ed3e03e1b264887f653e4471 AS build_base
+FROM registry.access.redhat.com/ubi10/ubi@sha256:4690398669a07627339936c9e79b05233053056ce688efeb4400d3c1c530486b AS build_base
 RUN dnf install -y --nodocs --setopt=install_weak_deps=0 go
 
 FROM build_base AS build
