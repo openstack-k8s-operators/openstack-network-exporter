@@ -8,7 +8,7 @@ FROM build_base AS build
 ADD . /src
 RUN cd /src && go generate ./... && go build -trimpath -o openstack-network-exporter
 
-FROM registry.access.redhat.com/ubi10/ubi-minimal@sha256:6df6c7d3d0ce8a6989e9979f2507401dddeebf60a94afbbeedc5b6e5ec89214b AS ubi_minimal
+FROM registry.access.redhat.com/ubi10/ubi-minimal@sha256:d801168f5e8b108586c27a4fd5c92e3c1e8d061084383713926e2ca61b8b6c64 AS ubi_minimal
 RUN microdnf update -y && microdnf clean all && rm -rf /var/cache/dnf
 RUN microdnf install -y iproute && microdnf clean all && rm -rf /var/cache/dnf
 
