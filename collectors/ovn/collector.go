@@ -248,6 +248,11 @@ func collectLogicalRouters(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	if len(rps) == 0 {
+		// Nothing to label: do not query the SB database for it.
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	dpMap, portMap := buildRouterMaps(ctx)
