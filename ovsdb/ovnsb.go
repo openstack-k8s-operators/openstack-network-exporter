@@ -114,18 +114,12 @@ func sbConnect(ctx context.Context) (client.Client, error) {
 	return db, nil
 }
 
-// sbForgetOnDisconnect drops the cached SB client once the server closes the
-// connection (SB database restarted, leader changed). The client is created
-// without WithReconnect and does not reconnect by itself, and libovsdb keeps
-// Connected() returning true after a server-side disconnect, so the next
-// calls would all fail with "not connected".
+// libovsdb keeps Connected() true after server-side disconnect.
 func sbForgetOnDisconnect(db client.Client) {
 	<-db.DisconnectNotify()
 	sbForget(db)
 }
 
-// sbForget drops db if it is still the cached SB client, so that the next
-// call dials the SB database again.
 func sbForget(db client.Client) {
 	sbLock.Lock()
 	defer sbLock.Unlock()
@@ -155,8 +149,7 @@ func SBList[T model.Model](ctx context.Context, results *[]T) error {
 	})
 	if err != nil {
 		if errors.Is(err, client.ErrNotConnected) {
-			// The disconnect notification is sent without blocking and
-			// can be missed: drop the dead client here as well.
+			// Disconnect notification can be missed; drop the dead client here too.
 			sbForget(db)
 		}
 		return fmt.Errorf("SB Transact: %w", err)
