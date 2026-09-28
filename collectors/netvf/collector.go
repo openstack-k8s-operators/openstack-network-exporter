@@ -3,13 +3,18 @@
 package netvf
 
 import (
+	"context"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 	internalsysfs "github.com/openstack-k8s-operators/openstack-network-exporter/internal/sysfs"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovnsb"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -47,10 +52,12 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	portMap := buildVFPortMap()
+
 	sets := config.MetricSets()
 	buf := make(chan prometheus.Metric)
 	go func() {
-		collectFromLinks(links, sysfsRoot, buf)
+		collectFromLinks(links, sysfsRoot, portMap, buf)
 		close(buf)
 	}()
 	for m := range buf {
@@ -58,6 +65,31 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 			ch <- m
 		}
 	}
+}
+
+// buildVFPortMap queries OVN SB Port_Binding to map VF MAC addresses to
+// Neutron port UUIDs. Returns an empty map if the SB database is unreachable.
+func buildVFPortMap() map[string]string {
+	portMap := make(map[string]string)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	var ports []ovnsb.PortBinding
+	if err := ovsdb.SBList(ctx, &ports); err != nil {
+		log.Debugf("netvf: SB Port_Binding lookup failed: %s", err)
+		return portMap
+	}
+
+	for _, p := range ports {
+		for _, macEntry := range p.MAC {
+			mac := strings.SplitN(macEntry, " ", 2)[0]
+			mac = strings.ToLower(mac)
+			portMap[mac] = p.LogicalPort
+		}
+	}
+
+	return portMap
 }
 
 // metricSet returns the MetricSet for a given prometheus.Metric by matching
@@ -79,7 +111,7 @@ func metricSet(m prometheus.Metric) config.MetricSet {
 // emits metrics to ch. sysfsRoot is "/sys" in production, a temp dir in tests.
 // It emits all metrics unconditionally; callers are responsible for filtering
 // by MetricSet.
-func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, ch chan<- prometheus.Metric) {
+func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, portMap map[string]string, ch chan<- prometheus.Metric) {
 	for _, link := range links {
 		if link.Attributes == nil {
 			continue
@@ -118,9 +150,11 @@ func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, ch chan<-
 				}
 			}
 
+			portID := portMap[strings.ToLower(mac)]
+
 			ch <- prometheus.MustNewConstMetric(
 				infoMetric.Desc(), prometheus.GaugeValue, 1,
-				device, vfID, mac, vlan, linkState, spoofCheck, trust, pciAddress, numaNode,
+				device, vfID, mac, vlan, linkState, spoofCheck, trust, pciAddress, numaNode, portID,
 			)
 
 			if vf.Stats == nil {
