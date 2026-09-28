@@ -10,6 +10,7 @@ import (
 
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/client_golang/prometheus"
+	io_prometheus_client "github.com/prometheus/client_model/go"
 )
 
 // buildFakeSysfs creates a minimal /sys tree for one PF with one VF:
@@ -89,8 +90,11 @@ func TestCollectMetrics(t *testing.T) {
 		},
 	}
 
+	portMap := map[string]string{
+		"52:54:00:ab:cd:ef": "test-port-uuid",
+	}
 	ch := make(chan prometheus.Metric, 20)
-	collectFromLinks(links, sysfsRoot, ch)
+	collectFromLinks(links, sysfsRoot, portMap, ch)
 	close(ch)
 
 	got := map[string]bool{}
@@ -117,6 +121,51 @@ func TestCollectMetrics(t *testing.T) {
 	}
 }
 
+func TestPortIDEnrichment(t *testing.T) {
+	sysfsRoot := buildFakeSysfs(t)
+
+	mac, _ := net.ParseMAC("52:54:00:ab:cd:ef")
+	numVF := uint32(1)
+
+	links := []rtnetlink.LinkMessage{
+		{
+			Attributes: &rtnetlink.LinkAttributes{
+				Name:  "enp3s0f0",
+				NumVF: &numVF,
+				VFInfoList: []rtnetlink.VFInfo{
+					{ID: 0, MAC: mac, LinkState: rtnetlink.VFLinkStateAuto},
+				},
+			},
+		},
+	}
+
+	portMap := map[string]string{
+		"52:54:00:ab:cd:ef": "c6f14b7d-7dc1-422e-a3eb-7fb5d47ffdff",
+	}
+	ch := make(chan prometheus.Metric, 10)
+	collectFromLinks(links, sysfsRoot, portMap, ch)
+	close(ch)
+
+	for m := range ch {
+		if m.Desc() != infoMetric.Desc() {
+			continue
+		}
+		var dto io_prometheus_client.Metric
+		if err := m.Write(&dto); err != nil {
+			t.Fatal(err)
+		}
+		for _, lp := range dto.GetLabel() {
+			if lp.GetName() == "port_id" {
+				if got := lp.GetValue(); got != "c6f14b7d-7dc1-422e-a3eb-7fb5d47ffdff" {
+					t.Errorf("port_id = %q, want neutron port UUID", got)
+				}
+				return
+			}
+		}
+		t.Error("port_id label not found on net_vf_info metric")
+	}
+}
+
 func TestSkipsLinksWithoutVFs(t *testing.T) {
 	links := []rtnetlink.LinkMessage{
 		{
@@ -133,7 +182,7 @@ func TestSkipsLinksWithoutVFs(t *testing.T) {
 	}
 
 	ch := make(chan prometheus.Metric, 10)
-	collectFromLinks(links, "/nonexistent", ch)
+	collectFromLinks(links, "/nonexistent", nil, ch)
 	close(ch)
 
 	count := 0
