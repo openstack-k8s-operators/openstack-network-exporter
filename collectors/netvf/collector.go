@@ -67,10 +67,16 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
+type vfPortInfo struct {
+	portID string
+	vmID   string
+}
+
 // buildVFPortMap queries OVN SB Port_Binding to map VF MAC addresses to
-// Neutron port UUIDs. Returns an empty map if the SB database is unreachable.
-func buildVFPortMap() map[string]string {
-	portMap := make(map[string]string)
+// Neutron port UUIDs and VM UUIDs. Returns an empty map if the SB database
+// is unreachable.
+func buildVFPortMap() map[string]vfPortInfo {
+	portMap := make(map[string]vfPortInfo)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -82,10 +88,14 @@ func buildVFPortMap() map[string]string {
 	}
 
 	for _, p := range ports {
+		vmID := p.ExternalIDs["neutron:device_id"]
 		for _, macEntry := range p.MAC {
 			mac := strings.SplitN(macEntry, " ", 2)[0]
 			mac = strings.ToLower(mac)
-			portMap[mac] = p.LogicalPort
+			portMap[mac] = vfPortInfo{
+				portID: p.LogicalPort,
+				vmID:   vmID,
+			}
 		}
 	}
 
@@ -111,7 +121,7 @@ func metricSet(m prometheus.Metric) config.MetricSet {
 // emits metrics to ch. sysfsRoot is "/sys" in production, a temp dir in tests.
 // It emits all metrics unconditionally; callers are responsible for filtering
 // by MetricSet.
-func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, portMap map[string]string, ch chan<- prometheus.Metric) {
+func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, portMap map[string]vfPortInfo, ch chan<- prometheus.Metric) {
 	for _, link := range links {
 		if link.Attributes == nil {
 			continue
@@ -150,11 +160,11 @@ func collectFromLinks(links []rtnetlink.LinkMessage, sysfsRoot string, portMap m
 				}
 			}
 
-			portID := portMap[strings.ToLower(mac)]
+			info := portMap[strings.ToLower(mac)]
 
 			ch <- prometheus.MustNewConstMetric(
 				infoMetric.Desc(), prometheus.GaugeValue, 1,
-				device, vfID, mac, vlan, linkState, spoofCheck, trust, pciAddress, numaNode, portID,
+				device, vfID, mac, vlan, linkState, spoofCheck, trust, pciAddress, numaNode, info.portID, info.vmID,
 			)
 
 			if vf.Stats == nil {

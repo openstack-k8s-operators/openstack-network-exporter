@@ -10,7 +10,7 @@ import (
 
 var trafficLabels = []string{"device", "vf", "pci_address", "numa_node"}
 
-var infoLabels = []string{"device", "vf", "mac", "vlan", "link_state", "spoof_check", "trust", "pci_address", "numa_node", "port_id"}
+var infoLabels = []string{"device", "vf", "mac", "vlan", "link_state", "spoof_check", "trust", "pci_address", "numa_node", "port_id", "vm_id"}
 
 var infoMetric = lib.Metric{
 	Name:        "net_vf_info",
