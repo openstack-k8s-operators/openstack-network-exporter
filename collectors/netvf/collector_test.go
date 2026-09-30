@@ -90,8 +90,8 @@ func TestCollectMetrics(t *testing.T) {
 		},
 	}
 
-	portMap := map[string]string{
-		"52:54:00:ab:cd:ef": "test-port-uuid",
+	portMap := map[string]vfPortInfo{
+		"52:54:00:ab:cd:ef": {portID: "test-port-uuid", vmID: "test-vm-uuid"},
 	}
 	ch := make(chan prometheus.Metric, 20)
 	collectFromLinks(links, sysfsRoot, portMap, ch)
@@ -139,8 +139,8 @@ func TestPortIDEnrichment(t *testing.T) {
 		},
 	}
 
-	portMap := map[string]string{
-		"52:54:00:ab:cd:ef": "c6f14b7d-7dc1-422e-a3eb-7fb5d47ffdff",
+	portMap := map[string]vfPortInfo{
+		"52:54:00:ab:cd:ef": {portID: "c6f14b7d-7dc1-422e-a3eb-7fb5d47ffdff", vmID: "97400a2d-07ce-414c-b80b-76cdeeaca74e"},
 	}
 	ch := make(chan prometheus.Metric, 10)
 	collectFromLinks(links, sysfsRoot, portMap, ch)
@@ -159,10 +159,15 @@ func TestPortIDEnrichment(t *testing.T) {
 				if got := lp.GetValue(); got != "c6f14b7d-7dc1-422e-a3eb-7fb5d47ffdff" {
 					t.Errorf("port_id = %q, want neutron port UUID", got)
 				}
+			}
+			if lp.GetName() == "vm_id" {
+				if got := lp.GetValue(); got != "97400a2d-07ce-414c-b80b-76cdeeaca74e" {
+					t.Errorf("vm_id = %q, want nova VM UUID", got)
+				}
 				return
 			}
 		}
-		t.Error("port_id label not found on net_vf_info metric")
+		t.Error("vm_id label not found on net_vf_info metric")
 	}
 }
 
