@@ -58,9 +58,9 @@ cert.pem key.pem:
 run: openstack-network-exporter cert.pem key.pem
 	OPENSTACK_NETWORK_EXPORTER_YAML=etc/dev.yaml ./$<
 
-# Closest public equivalent to openshift/golang-builder:rhel_9_golang_1.24
+# Closest public equivalent to openshift/golang-builder:rhel_9_golang_1.25
 # used in the CPaaS/Cachito product build.
-PRODUCT_BUILDER ?= registry.access.redhat.com/ubi10/go-toolset:1.25
+PRODUCT_BUILDER ?= registry.access.redhat.com/ubi9/go-toolset:1.25
 GOMODCACHE ?= $(shell go env GOMODCACHE)
 
 .PHONY: build-product
