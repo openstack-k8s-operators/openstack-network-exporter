@@ -1,0 +1,12 @@
+{
+  "vrfs":[
+    {
+      "vrf":"tenant",
+      "vni":1000,
+      "vxlanIntf":"vni-l3",
+      "sviIntf":"tenant",
+      "state":"Up",
+      "routerMac":"0a:e7:54:a8:08:3f"
+    }
+  ]
+}

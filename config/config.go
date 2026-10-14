@@ -70,6 +70,7 @@ type conf struct {
 	OvnSBKey      string          `yaml:"ovn-sb-private-key" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_PRIVATE_KEY"`
 	OvnSBCert     string          `yaml:"ovn-sb-certificate" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CERTIFICATE"`
 	OvnSBCACert   string          `yaml:"ovn-sb-ca-cert" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CA_CERT"`
+	FrrRundir     string          `yaml:"frr-rundir" env:"OPENSTACK_NETWORK_EXPORTER_FRR_RUNDIR"`
 }
 
 var c = conf{
@@ -84,6 +85,7 @@ var c = conf{
 	OvnSBKey:    "/etc/pki/tls/private/ovndb.key",
 	OvnSBCert:   "/etc/pki/tls/certs/ovndb.crt",
 	OvnSBCACert: "/etc/pki/tls/certs/ovndbca.crt",
+	FrrRundir:   "/var/run/frr",
 }
 
 func HttpListen() string        { return c.HttpListen }
@@ -101,6 +103,7 @@ func OvnSBConnection() string   { return c.OvnSBConn }
 func OvnSBPrivateKey() string   { return c.OvnSBKey }
 func OvnSBCertificate() string  { return c.OvnSBCert }
 func OvnSBCACert() string       { return c.OvnSBCACert }
+func FrrRundir() string         { return c.FrrRundir }
 
 func Parse() error {
 	path, configInEnv := os.LookupEnv("OPENSTACK_NETWORK_EXPORTER_YAML")
