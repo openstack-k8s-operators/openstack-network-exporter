@@ -70,6 +70,10 @@ type conf struct {
 	OvnSBKey      string          `yaml:"ovn-sb-private-key" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_PRIVATE_KEY"`
 	OvnSBCert     string          `yaml:"ovn-sb-certificate" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CERTIFICATE"`
 	OvnSBCACert   string          `yaml:"ovn-sb-ca-cert" env:"OPENSTACK_NETWORK_EXPORTER_OVN_SB_CA_CERT"`
+	OvnNBConn     string          `yaml:"ovn-nb-connection" env:"OPENSTACK_NETWORK_EXPORTER_OVN_NB_CONNECTION"`
+	OvnNBKey      string          `yaml:"ovn-nb-private-key" env:"OPENSTACK_NETWORK_EXPORTER_OVN_NB_PRIVATE_KEY"`
+	OvnNBCert     string          `yaml:"ovn-nb-certificate" env:"OPENSTACK_NETWORK_EXPORTER_OVN_NB_CERTIFICATE"`
+	OvnNBCACert   string          `yaml:"ovn-nb-ca-cert" env:"OPENSTACK_NETWORK_EXPORTER_OVN_NB_CA_CERT"`
 	FrrRundir     string          `yaml:"frr-rundir" env:"OPENSTACK_NETWORK_EXPORTER_FRR_RUNDIR"`
 }
 
@@ -85,6 +89,9 @@ var c = conf{
 	OvnSBKey:    "/etc/pki/tls/private/ovndb.key",
 	OvnSBCert:   "/etc/pki/tls/certs/ovndb.crt",
 	OvnSBCACert: "/etc/pki/tls/certs/ovndbca.crt",
+	OvnNBKey:    "/etc/pki/tls/private/ovndb.key",
+	OvnNBCert:   "/etc/pki/tls/certs/ovndb.crt",
+	OvnNBCACert: "/etc/pki/tls/certs/ovndbca.crt",
 	FrrRundir:   "/var/run/frr",
 }
 
@@ -103,6 +110,10 @@ func OvnSBConnection() string   { return c.OvnSBConn }
 func OvnSBPrivateKey() string   { return c.OvnSBKey }
 func OvnSBCertificate() string  { return c.OvnSBCert }
 func OvnSBCACert() string       { return c.OvnSBCACert }
+func OvnNBConnection() string   { return c.OvnNBConn }
+func OvnNBPrivateKey() string   { return c.OvnNBKey }
+func OvnNBCertificate() string  { return c.OvnNBCert }
+func OvnNBCACert() string       { return c.OvnNBCACert }
 func FrrRundir() string         { return c.FrrRundir }
 
 func Parse() error {

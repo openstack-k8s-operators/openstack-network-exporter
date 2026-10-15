@@ -3,6 +3,7 @@
 package frr
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -10,6 +11,8 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/config"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/log"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/ovsdb/ovnnb"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -37,10 +40,37 @@ func (Collector) Collect(ch chan<- prometheus.Metric) {
 	collectRouteSummary(vty, projectMap, ch)
 }
 
-// buildVRFProjectMap returns a VRF name → project_id map.
-// Stub for now — will query OVN NB once NB client is available.
+// buildVRFProjectMap queries OVN NB Logical_Router to map VRF names to
+// Neutron project IDs. VRF naming convention: "vr<router-UUID-prefix>".
+// Returns an empty map if NB is unreachable or no routers match.
 func buildVRFProjectMap() map[string]string {
-	return make(map[string]string)
+	result := make(map[string]string)
+
+	ctx := context.Background()
+	var routers []ovnnb.LogicalRouter
+	if err := ovsdb.NBList(ctx, &routers); err != nil {
+		log.Debugf("frr: NB Logical_Router lookup failed: %s", err)
+		return result
+	}
+
+	// VRF naming convention: "vr" + first 12 chars of router UUID
+	// (dashes stripped). See neutron-specs bgp_evpn_type_5_route_support.
+	for _, router := range routers {
+		tenantID := router.ExternalIDs["neutron:tenant_id"]
+		if tenantID == "" {
+			continue
+		}
+		routerID := router.ExternalIDs["neutron:router_id"]
+		if routerID == "" {
+			continue
+		}
+		cleanID := strings.ReplaceAll(routerID, "-", "")
+		if len(cleanID) >= 12 {
+			result["vr"+cleanID[:12]] = tenantID
+		}
+	}
+
+	return result
 }
 
 // BGP summary parsing
