@@ -7,6 +7,7 @@ import (
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/bridge"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/coverage"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/datapath"
+	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/frr"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/iface"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/lib"
 	"github.com/openstack-k8s-operators/openstack-network-exporter/collectors/memory"
@@ -24,6 +25,7 @@ var collectors = []lib.Collector{
 	new(bridge.Collector),
 	new(coverage.Collector),
 	new(datapath.Collector),
+	new(frr.Collector),
 	new(iface.Collector),
 	new(memory.Collector),
 	new(netvf.Collector),

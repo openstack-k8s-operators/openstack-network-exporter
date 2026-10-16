@@ -1,0 +1,44 @@
+{
+"l2VpnEvpn":{
+  "routerId":"172.16.0.2",
+  "as":65000,
+  "vrfId":0,
+  "vrfName":"default",
+  "tableVersion":0,
+  "ribCount":4,
+  "ribMemory":640,
+  "peerCount":1,
+  "peerMemory":30696,
+  "peers":{
+    "172.16.0.1":{
+      "hostname":"ringo.rjarry-thinkpad-x1-carbon-gen12.remote.csb",
+      "softwareVersion":"n/a",
+      "remoteAs":65000,
+      "localAs":65000,
+      "version":4,
+      "msgRcvd":8,
+      "msgSent":8,
+      "tableVersion":4,
+      "outq":0,
+      "inq":0,
+      "peerUptime":"00:00:30",
+      "peerUptimeMsec":30000,
+      "peerUptimeEstablishedEpoch":1791366943,
+      "pfxRcd":5,
+      "pfxSnt":6,
+      "state":"Established",
+      "peerState":"OK",
+      "connectionsEstablished":1,
+      "connectionsDropped":0,
+      "idType":"ipv4"
+    }
+  },
+  "failedPeers":0,
+  "displayedPeers":1,
+  "totalPeers":1,
+  "dynamicPeers":0,
+  "bestPath":{
+    "multiPathRelax":"false"
+  }
+}
+}

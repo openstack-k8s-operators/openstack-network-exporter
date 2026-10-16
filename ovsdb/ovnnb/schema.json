@@ -1,0 +1,1 @@
+{"name":"OVN_Northbound","version":"7.3.0","tables":{"Logical_Router":{"columns":{"name":{"type":"string"},"external_ids":{"type":{"key":"string","value":"string","min":0,"max":"unlimited"}}},"isRoot":true}}}

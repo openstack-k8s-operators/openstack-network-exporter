@@ -1,0 +1,14 @@
+{
+  "100":{
+    "numArpNd":1,
+    "10.0.0.3":{
+      "type":"local",
+      "state":"inactive",
+      "mac":"02:09:e8:d0:db:1c",
+      "localSequence":0,
+      "remoteSequence":0,
+      "detectionCount":0,
+      "isDuplicate":false
+    }
+  }
+}
